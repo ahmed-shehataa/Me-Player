@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Me-Player</string>
+    <string name="no_recipes_found">no recipes found</string>
 </resources>
