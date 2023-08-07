@@ -1,6 +1,7 @@
 package com.ashehata.me_player.modules.home.presentation.composables
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,7 +42,7 @@ fun TracksScreenContent(allTracksPagingData: Flow<PagingData<TrackDomainModel>>?
 
     val context = LocalContext.current
 
-    Column {
+    Column(Modifier.background(MaterialTheme.colors.primary)) {
         var tabIndex by remember { mutableStateOf(0) }
         val tabs = listOf(R.string.all, R.string.fav, R.string.most_played)
         val allTracks = allTracksPagingData?.collectAsLazyPagingItems()
