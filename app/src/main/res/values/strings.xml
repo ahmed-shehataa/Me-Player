@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Me-Player</string>
     <string name="no_recipes_found">no recipes found</string>
+    <string name="all">All</string>
+    <string name="fav">Favourite</string>
+    <string name="most_played">Most played</string>
 </resources>

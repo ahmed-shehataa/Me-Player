@@ -14,16 +14,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
+import com.ashehata.me_player.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -38,13 +34,10 @@ class HomeActivity : AppCompatActivity() {
             RequestNotificationPermission()
             RequestMediaPermission()
 
-            Box(
-                Modifier
-                    .background(Color.Black)
-                    .fillMaxSize()
-            ) {
-
+            AppTheme {
+                TracksScreen(tracksViewModel)
             }
+
         }
     }
 
@@ -67,10 +60,12 @@ class HomeActivity : AppCompatActivity() {
             MediaStore.Audio.Media.SIZE
         )
 
+        val selection = MediaStore.Audio.Media.IS_MUSIC + " == 1"
+
         val query = contentResolver.query(
             collection,
             projection,
-            null,
+            selection,
             null,
             null
         )
@@ -99,6 +94,7 @@ class HomeActivity : AppCompatActivity() {
                 // Stores column values and the contentUri in a local object
                 // that represents the media file.
                 tracksList += TrackDomainModel(
+                    id = id,
                     name = name,
                     uri = contentUri.toString(),
                     duration = duration,
@@ -108,7 +104,6 @@ class HomeActivity : AppCompatActivity() {
 
             // insert all tracks into local DB
             tracksViewModel.setEvent(TracksEvent.UpdateTracks(tracksList))
-            Toast.makeText(this, tracksList.size.toString(), Toast.LENGTH_SHORT).show()
             Log.i("readAllMediaAudio", tracksList.toString())
             query.close()
         }

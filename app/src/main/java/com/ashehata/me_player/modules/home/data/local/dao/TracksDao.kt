@@ -10,8 +10,7 @@ interface TracksDao {
     @Query("SELECT * FROM Tracks")
     fun getAllTracks(): PagingSource<Int, TrackDataModel>
 
-    //TODO change OnConflictStrategy
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(tracksList: List<TrackDataModel>)
 
     @Update()

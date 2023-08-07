@@ -2,11 +2,13 @@ package com.ashehata.me_player.modules.home.presentation.contract
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.paging.PagingData
 import com.ashehata.me_player.base.BaseEvent
 import com.ashehata.me_player.base.BaseState
 import com.ashehata.me_player.base.BaseViewState
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
+import kotlinx.coroutines.flow.Flow
 
 
 sealed class TracksEvent : BaseEvent {
@@ -29,4 +31,5 @@ data class TracksViewState(
     override val isRefreshing: MutableState<Boolean> = mutableStateOf(false),
     override val isLoading: MutableState<Boolean> = mutableStateOf(false),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),
+    var allTracks: Flow<PagingData<TrackDomainModel>>? = null
 ) : BaseViewState

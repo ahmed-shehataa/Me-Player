@@ -21,7 +21,9 @@ class TracksViewModel @Inject constructor(
 
 
     init {
-
+        launchCoroutine {
+            viewStates?.allTracks = getAllTracksListUseCase.execute()
+        }
     }
 
     override fun handleEvents(event: TracksEvent) {
@@ -51,7 +53,10 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.UpdateTracks -> {
+                launchCoroutine {
+                    updateTracksListUseCase.execute(event.tracks)
 
+                }
             }
         }
     }
