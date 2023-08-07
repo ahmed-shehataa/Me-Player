@@ -30,3 +30,6 @@ google-services.json
 *.hprof
 .idea/gradle.xml
 .idea/gradle.xml
+.idea/kotlinc.xml
+.idea/misc.xml
+.idea/misc.xml

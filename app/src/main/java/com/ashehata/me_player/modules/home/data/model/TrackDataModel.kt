@@ -10,6 +10,6 @@ data class TrackDataModel(
     val id: Long? = null,
     val name: String,
     val uri: String,
-    val duration: Long,
-    val size: Long,
+    val duration: Int,
+    val size: Int,
 )

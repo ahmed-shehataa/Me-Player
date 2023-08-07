@@ -1,4 +1,4 @@
-package com.ashehata.me_player.modules.home
+package com.ashehata.me_player.modules.home.presentation
 
 import android.Manifest
 import android.content.ContentUris
@@ -7,12 +7,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.provider.MediaStore.Audio
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -22,8 +22,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
+import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
+
+    private val tracksViewModel: TracksViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -42,7 +49,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun readAllMediaAudio() {
-        val audioList = mutableListOf<Audio>()
+        val tracksList = mutableListOf<TrackDomainModel>()
 
         val collection =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -91,22 +98,21 @@ class HomeActivity : AppCompatActivity() {
 
                 // Stores column values and the contentUri in a local object
                 // that represents the media file.
-                audioList += Audio(contentUri, name, duration, size)
+                tracksList += TrackDomainModel(
+                    name = name,
+                    uri = contentUri.toString(),
+                    duration = duration,
+                    size = size
+                )
             }
 
-            Toast.makeText(this, audioList.size.toString(), Toast.LENGTH_SHORT).show()
-
-            Log.i("readAllMediaAudio", audioList.toString())
+            // insert all tracks into local DB
+            tracksViewModel.setEvent(TracksEvent.UpdateTracks(tracksList))
+            Toast.makeText(this, tracksList.size.toString(), Toast.LENGTH_SHORT).show()
+            Log.i("readAllMediaAudio", tracksList.toString())
             query.close()
         }
     }
-
-    data class Audio(
-        val uri: Uri,
-        val name: String,
-        val duration: Int,
-        val size: Int
-    )
 
     @Composable
     private fun RequestNotificationPermission() {
