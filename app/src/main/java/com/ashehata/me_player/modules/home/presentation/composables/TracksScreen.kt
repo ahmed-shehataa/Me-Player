@@ -44,6 +44,10 @@ fun TracksScreen(viewModel: TracksViewModel) {
         viewStates.currentSelectedTrack
     }
 
+    val isPlaying = remember {
+        viewStates.isPlaying
+    }
+
     val isLoading = remember {
         viewStates.isLoading
     }
@@ -75,6 +79,12 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
+    val onPlayPauseToggle: () -> Unit = remember {
+        {
+            viewModel.setEvent(TracksEvent.PlayPauseToggle)
+        }
+    }
+
     BackHandler(enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded) {
         scope.launch {
             bottomSheetScaffoldState.bottomSheetState.collapse()
@@ -84,13 +94,15 @@ fun TracksScreen(viewModel: TracksViewModel) {
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            TrackPlayerScreen(onCollapsedItemClicked = {
-                scope.launch {
-                    bottomSheetScaffoldState.bottomSheetState.expand()
-                }
-            }, onWholeItemClicked = {
-
-            }, currentSelectedTrack = currentSelectedTrack.value)
+            TrackPlayerScreen(
+                onCollapsedItemClicked = {
+                    scope.launch {
+                        bottomSheetScaffoldState.bottomSheetState.expand()
+                    }
+                }, currentSelectedTrack = currentSelectedTrack.value,
+                onPlayPauseToggle = onPlayPauseToggle,
+                isPlaying = isPlaying.value
+            )
         },
         sheetPeekHeight = bottomSheetHeight.value,
         backgroundColor = MaterialTheme.colors.primary,
@@ -99,7 +111,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
         TracksScreenContent(
             allTracksPagingData = allTracks,
             onTrackClicked = onTrackClicked,
-            currentSelectedTrack = currentSelectedTrack.value
+            currentSelectedTrack = currentSelectedTrack.value,
         )
     }
 

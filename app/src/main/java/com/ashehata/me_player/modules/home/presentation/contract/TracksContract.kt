@@ -8,6 +8,7 @@ import com.ashehata.me_player.base.BaseState
 import com.ashehata.me_player.base.BaseViewState
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
+import com.ashehata.me_player.player.MyPlayer
 import kotlinx.coroutines.flow.Flow
 
 
@@ -16,6 +17,8 @@ sealed class TracksEvent : BaseEvent {
     data class AddTrackToFavourite(val trackDomainModel: TrackDomainModel) : TracksEvent()
     data class RemoveTrackFromFavourite(val trackDomainModel: TrackDomainModel) : TracksEvent()
     data class UpdateTracks(val tracks: List<TrackDomainModel>) : TracksEvent()
+    data class InitPlayer(val player: MyPlayer?) : TracksEvent()
+    object PlayPauseToggle : TracksEvent()
     object ChangeScreenMode : TracksEvent()
     object ClearAllFavourite : TracksEvent()
     object RefreshScreen : TracksEvent()
@@ -30,6 +33,7 @@ data class TracksViewState(
     override val isNetworkError: MutableState<Boolean> = mutableStateOf(false),
     override val isRefreshing: MutableState<Boolean> = mutableStateOf(false),
     override val isLoading: MutableState<Boolean> = mutableStateOf(false),
+    val isPlaying: MutableState<Boolean> = mutableStateOf(false),
     val currentSelectedTrack: MutableState<TrackDomainModel?> = mutableStateOf(null),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),
     var allTracks: Flow<PagingData<TrackDomainModel>>? = null

@@ -1,6 +1,7 @@
 package com.ashehata.me_player.modules.home.presentation
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.ContentUris
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -17,10 +18,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.composables.TracksScreen
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
+import com.ashehata.me_player.service.PlaybackService
 import com.ashehata.me_player.theme.AppTheme
+import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,6 +45,21 @@ class HomeActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+
+    override fun onStart() {
+        super.onStart()
+        val sessionToken = SessionToken(this, ComponentName(this, PlaybackService::class.java))
+        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+        controllerFuture.addListener(
+            {
+                // init player
+                tracksViewModel.setEvent(TracksEvent.InitPlayer(null))
+            },
+            MoreExecutors.directExecutor()
+        )
+
     }
 
     private fun readAllMediaAudio() {
