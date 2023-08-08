@@ -41,7 +41,7 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.OnTrackClicked -> {
-
+                viewStates?.currentSelectedTrack?.value = event.trackDomainModel
             }
 
             TracksEvent.RefreshScreen -> {

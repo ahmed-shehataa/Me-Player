@@ -15,27 +15,52 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.util.extensions.toTimeFormat
 
 
 @Composable
-fun TrackItem(trackDomainModel: TrackDomainModel) {
+fun TrackItem(
+    trackDomainModel: TrackDomainModel,
+    onTrackClicked: () -> Unit,
+    isSelected: Boolean = false
+) {
+
+    val trackNameColor: @Composable () -> Color = remember(isSelected) {
+        {
+            if (isSelected)
+                MaterialTheme.colors.secondaryVariant
+            else
+                MaterialTheme.colors.onSurface
+        }
+    }
+
+    val iconRes: () -> Int = remember(isSelected) {
+        {
+            if (isSelected)
+                R.drawable.ic_graphic_eq
+            else
+                R.drawable.ic_music_note
+        }
+    }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-
+                onTrackClicked()
             }
             .padding(horizontal = 20.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -49,7 +74,12 @@ fun TrackItem(trackDomainModel: TrackDomainModel) {
                 .background(MaterialTheme.colors.secondary),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+            Icon(
+                modifier = Modifier.size(26.dp),
+                imageVector = ImageVector.vectorResource(id = iconRes()),
+                contentDescription = null,
+                tint = if (isSelected) MaterialTheme.colors.secondaryVariant else Color.Unspecified
+            )
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
@@ -58,7 +88,7 @@ fun TrackItem(trackDomainModel: TrackDomainModel) {
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.typography.body1.copy(
-                    color = MaterialTheme.colors.onSurface,
+                    color = trackNameColor(),
                 )
             )
 

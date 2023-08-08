@@ -11,7 +11,8 @@ private val DarkColorPalette = lightColors(
     secondary = Tundora,
     surface = Cod_Gray_2,
     onSurface = White,
-    onPrimary = Nobel
+    onPrimary = Nobel,
+    secondaryVariant = Air_Force_Blue
 )
 
 @Composable

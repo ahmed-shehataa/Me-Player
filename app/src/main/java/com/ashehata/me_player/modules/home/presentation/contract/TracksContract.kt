@@ -30,6 +30,7 @@ data class TracksViewState(
     override val isNetworkError: MutableState<Boolean> = mutableStateOf(false),
     override val isRefreshing: MutableState<Boolean> = mutableStateOf(false),
     override val isLoading: MutableState<Boolean> = mutableStateOf(false),
+    val currentSelectedTrack: MutableState<TrackDomainModel?> = mutableStateOf(null),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),
     var allTracks: Flow<PagingData<TrackDomainModel>>? = null
 ) : BaseViewState

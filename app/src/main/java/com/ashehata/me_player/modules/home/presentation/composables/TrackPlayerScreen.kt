@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -17,8 +18,6 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.runtime.Composable
@@ -26,18 +25,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.ashehata.me_player.R
+import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 
 @Composable
 fun TrackPlayerScreen(
     onCollapsedItemClicked: () -> Unit,
     onWholeItemClicked: () -> Unit,
+    currentSelectedTrack: TrackDomainModel?,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         ControllerItem(Modifier.align(Alignment.Center), onWholeItemClicked)
-        CollapsedItem(Modifier.align(Alignment.TopCenter), onCollapsedItemClicked)
+        CollapsedItem(
+            Modifier.align(Alignment.TopCenter),
+            onCollapsedItemClicked,
+            currentSelectedTrack
+        )
 
     }
 
@@ -63,10 +71,8 @@ fun ControllerItem(modifier: Modifier, onItemClicked: () -> Unit) {
                 .background(MaterialTheme.colors.primary)
         ) {
             Icon(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(12.dp),
-                imageVector = Icons.Filled.ArrowBack,
+                modifier = Modifier.size(30.dp),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_skip_previous),
                 contentDescription = null,
                 tint = MaterialTheme.colors.onSurface
             )
@@ -79,10 +85,8 @@ fun ControllerItem(modifier: Modifier, onItemClicked: () -> Unit) {
                 .background(MaterialTheme.colors.primary)
         ) {
             Icon(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(12.dp),
-                imageVector = Icons.Filled.PlayArrow,
+                modifier = Modifier.size(34.dp),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_play_arrow),
                 contentDescription = null,
                 tint = MaterialTheme.colors.onSurface
             )
@@ -95,10 +99,8 @@ fun ControllerItem(modifier: Modifier, onItemClicked: () -> Unit) {
                 .background(MaterialTheme.colors.primary)
         ) {
             Icon(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(12.dp),
-                imageVector = Icons.Filled.ArrowForward,
+                modifier = Modifier.size(30.dp),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_skip_next),
                 contentDescription = null,
                 tint = MaterialTheme.colors.onSurface
             )
@@ -109,7 +111,11 @@ fun ControllerItem(modifier: Modifier, onItemClicked: () -> Unit) {
 }
 
 @Composable
-fun CollapsedItem(modifier: Modifier, onItemClicked: () -> Unit) {
+fun CollapsedItem(
+    modifier: Modifier,
+    onItemClicked: () -> Unit,
+    currentSelectedTrack: TrackDomainModel?
+) {
     Column {
 
         LinearProgressIndicator(
@@ -135,7 +141,7 @@ fun CollapsedItem(modifier: Modifier, onItemClicked: () -> Unit) {
 
             Text(
                 modifier = Modifier.weight(1f),
-                text = "trackDomainModel.name",
+                text = currentSelectedTrack?.name ?: "",
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.typography.body1.copy(
