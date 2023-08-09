@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.player.PlaybackState
 
 @Composable
 fun TrackPlayerScreen(
@@ -44,6 +45,7 @@ fun TrackPlayerScreen(
     currentSelectedTrack: TrackDomainModel?,
     onPlayPauseToggle: () -> Unit,
     isPlaying: Boolean,
+    playbackState: PlaybackState,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -59,7 +61,8 @@ fun TrackPlayerScreen(
             onCollapsedItemClicked,
             currentSelectedTrack,
             onPlayPauseToggle,
-            isPlaying
+            isPlaying,
+            playbackState
         )
 
     }
@@ -150,8 +153,15 @@ fun CollapsedItem(
     onItemClicked: () -> Unit,
     currentSelectedTrack: TrackDomainModel?,
     onPlayPauseToggle: () -> Unit,
-    isPlaying: Boolean
+    isPlaying: Boolean,
+    playbackState: PlaybackState,
 ) {
+    val currentProgress = remember(playbackState) {
+        if (playbackState.currentTrackDuration != 0L) {
+            playbackState.currentPlaybackPosition.toFloat() / playbackState.currentTrackDuration.toFloat()
+        } else 0F
+    }
+
     Column {
 
         val iconRes = remember(isPlaying) {
@@ -161,7 +171,7 @@ fun CollapsedItem(
         }
 
         LinearProgressIndicator(
-            progress = 0.7f, color = Color.Red, modifier = Modifier
+            progress = currentProgress, color = Color.Red, modifier = Modifier
                 .fillMaxWidth()
                 .height(2.dp),
             backgroundColor = Color.Unspecified

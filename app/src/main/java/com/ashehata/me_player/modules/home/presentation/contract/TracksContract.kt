@@ -9,7 +9,9 @@ import com.ashehata.me_player.base.BaseViewState
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.player.MyPlayer
+import com.ashehata.me_player.player.PlaybackState
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 sealed class TracksEvent : BaseEvent {
@@ -34,6 +36,7 @@ data class TracksViewState(
     override val isRefreshing: MutableState<Boolean> = mutableStateOf(false),
     override val isLoading: MutableState<Boolean> = mutableStateOf(false),
     val isPlaying: MutableState<Boolean> = mutableStateOf(false),
+    val playbackState: MutableStateFlow<PlaybackState> = MutableStateFlow(PlaybackState(0L, 0L)),
     val currentSelectedTrack: MutableState<TrackDomainModel?> = mutableStateOf(null),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),
     var allTracks: Flow<PagingData<TrackDomainModel>>? = null

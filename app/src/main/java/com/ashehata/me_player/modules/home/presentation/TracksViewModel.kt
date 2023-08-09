@@ -1,6 +1,7 @@
 package com.ashehata.me_player.modules.home.presentation
 
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import com.ashehata.me_player.base.BaseViewModel
 import com.ashehata.me_player.modules.home.domain.usecase.GetAllTracksListUseCase
@@ -12,7 +13,10 @@ import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlayerStates
+import com.ashehata.me_player.util.extensions.launchPlaybackStateJob
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
@@ -24,6 +28,8 @@ class TracksViewModel @Inject constructor(
     private val updateTracksListUseCase: UpdateTracksListUseCase,
     private val myPlayer: MyPlayer,
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
+
+    private var playbackStateJob: Job? = null
 
     init {
         launchCoroutine {
@@ -51,9 +57,7 @@ class TracksViewModel @Inject constructor(
                 val newItem = MediaItem.Builder()
                     .setUri(event.trackDomainModel.uri)
                     .build()
-                myPlayer?.let {
-                    it.iniPlayer(listOf(newItem).toMutableList())
-                }
+                myPlayer.iniPlayer(listOf(newItem).toMutableList())
             }
 
             TracksEvent.RefreshScreen -> {
@@ -65,19 +69,22 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.UpdateTracks -> {
-                launchCoroutine {
+                launchCoroutine(Dispatchers.IO) {
                     updateTracksListUseCase.execute(event.tracks)
 
                 }
             }
 
             is TracksEvent.InitPlayer -> {
-                launchCoroutine {
+                launchCoroutine(Dispatchers.Main) {
                     myPlayer.playerState.collectLatest {
                         Log.i("handleEvents: ", it.name)
+                        updatePlaybackState(it)
                         viewStates?.isPlaying?.value = it == PlayerStates.STATE_PLAYING
+
                     }
                 }
+                //listenToProgressUpdates()
             }
 
             TracksEvent.PlayPauseToggle -> {
@@ -86,6 +93,10 @@ class TracksViewModel @Inject constructor(
         }
     }
 
+    private fun updatePlaybackState(state: PlayerStates) {
+        playbackStateJob?.cancel()
+        playbackStateJob = viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, myPlayer)
+    }
 
     override fun createInitialViewState(): TracksViewState {
         return TracksViewState()
@@ -93,6 +104,6 @@ class TracksViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        //myPlayer.releasePlayer()
+        myPlayer.releasePlayer()
     }
 }

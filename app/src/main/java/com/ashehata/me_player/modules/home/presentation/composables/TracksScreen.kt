@@ -11,6 +11,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +44,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
     val currentSelectedTrack = remember {
         viewStates.currentSelectedTrack
     }
+
+    val playbackState = viewStates.playbackState.collectAsState()
 
     val isPlaying = remember {
         viewStates.isPlaying
@@ -99,9 +102,11 @@ fun TracksScreen(viewModel: TracksViewModel) {
                     scope.launch {
                         bottomSheetScaffoldState.bottomSheetState.expand()
                     }
-                }, currentSelectedTrack = currentSelectedTrack.value,
+                },
+                currentSelectedTrack = currentSelectedTrack.value,
                 onPlayPauseToggle = onPlayPauseToggle,
-                isPlaying = isPlaying.value
+                isPlaying = isPlaying.value,
+                playbackState = playbackState.value,
             )
         },
         sheetPeekHeight = bottomSheetHeight.value,
