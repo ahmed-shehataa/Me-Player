@@ -96,5 +96,10 @@ dependencies {
     implementation "androidx.media3:media3-exoplayer:$media3_version"
     //endregion
 
+    //region audiowaveform
+    implementation 'com.github.lincollincol:compose-audiowaveform:1.1.1'
+    implementation 'com.github.lincollincol:amplituda:2.2.2'
+    //endregion
+
 
 }

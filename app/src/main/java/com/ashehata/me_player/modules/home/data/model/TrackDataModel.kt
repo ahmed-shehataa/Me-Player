@@ -12,4 +12,5 @@ data class TrackDataModel(
     val uri: String,
     val duration: Int,
     val size: Int,
+    val wavesList: List<Int>,
 )

@@ -20,6 +20,7 @@ sealed class TracksEvent : BaseEvent {
     data class RemoveTrackFromFavourite(val trackDomainModel: TrackDomainModel) : TracksEvent()
     data class UpdateTracks(val tracks: List<TrackDomainModel>) : TracksEvent()
     data class InitPlayer(val player: MyPlayer?) : TracksEvent()
+    data class SeekToPosition(val position: Long) : TracksEvent()
     object PlayPauseToggle : TracksEvent()
     object ChangeScreenMode : TracksEvent()
     object ClearAllFavourite : TracksEvent()

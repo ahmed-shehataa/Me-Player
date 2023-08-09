@@ -88,6 +88,12 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
+    val onSeekToPosition: (Long) -> Unit = remember {
+        {
+            viewModel.setEvent(TracksEvent.SeekToPosition(it))
+        }
+    }
+
     BackHandler(enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded) {
         scope.launch {
             bottomSheetScaffoldState.bottomSheetState.collapse()
@@ -107,6 +113,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
                 onPlayPauseToggle = onPlayPauseToggle,
                 isPlaying = isPlaying.value,
                 playbackState = playbackState.value,
+                onSeekToPosition = onSeekToPosition
             )
         },
         sheetPeekHeight = bottomSheetHeight.value,

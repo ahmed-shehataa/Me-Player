@@ -3,6 +3,7 @@ package com.ashehata.me_player.modules.home.presentation
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
+import com.ashehata.me_player.amplitude.MyAmplitude
 import com.ashehata.me_player.base.BaseViewModel
 import com.ashehata.me_player.modules.home.domain.usecase.GetAllTracksListUseCase
 import com.ashehata.me_player.modules.home.domain.usecase.GetFavouriteTracksListUseCase
@@ -27,6 +28,7 @@ class TracksViewModel @Inject constructor(
     private val getMostPlayedTracksListUseCase: GetMostPlayedTracksListUseCase,
     private val updateTracksListUseCase: UpdateTracksListUseCase,
     private val myPlayer: MyPlayer,
+    private val myAmplitude: MyAmplitude,
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
     private var playbackStateJob: Job? = null
@@ -69,10 +71,13 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.UpdateTracks -> {
-                launchCoroutine(Dispatchers.IO) {
-                    updateTracksListUseCase.execute(event.tracks)
+                // TODO uncomment
+                /*launchCoroutine(Dispatchers.IO) {
+                    updateTracksListUseCase.execute(event.tracks.map {
+                        it.copy(wavesList = myAmplitude.audioToWave(it.uri))
+                    })
 
-                }
+                }*/
             }
 
             is TracksEvent.InitPlayer -> {
@@ -90,12 +95,17 @@ class TracksViewModel @Inject constructor(
             TracksEvent.PlayPauseToggle -> {
                 myPlayer.playPause()
             }
+
+            is TracksEvent.SeekToPosition -> {
+                myPlayer.seekToPosition(event.position)
+            }
         }
     }
 
     private fun updatePlaybackState(state: PlayerStates) {
         playbackStateJob?.cancel()
-        playbackStateJob = viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, myPlayer)
+        playbackStateJob =
+            viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, myPlayer)
     }
 
     override fun createInitialViewState(): TracksViewState {

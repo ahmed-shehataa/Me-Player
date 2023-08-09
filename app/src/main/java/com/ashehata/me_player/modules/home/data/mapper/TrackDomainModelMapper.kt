@@ -6,5 +6,5 @@ import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 
 fun TrackDataModel.toDomain(): TrackDomainModel =
     TrackDomainModel(
-        id, name, uri, duration, size
+        id, name, uri, duration, size, wavesList
     )

@@ -1,5 +1,6 @@
 package com.ashehata.me_player.modules.home.presentation.composables
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,6 +42,9 @@ import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.player.PlaybackState
+import com.linc.audiowaveform.AudioWaveform
+import com.linc.audiowaveform.model.AmplitudeType
+import com.linc.audiowaveform.model.WaveformAlignment
 
 @Composable
 fun TrackPlayerScreen(
@@ -46,9 +53,16 @@ fun TrackPlayerScreen(
     onPlayPauseToggle: () -> Unit,
     isPlaying: Boolean,
     playbackState: PlaybackState,
+    onSeekToPosition: (Long) -> Unit,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
+
+        val currentProgress = remember(playbackState) {
+            if (playbackState.currentTrackDuration != 0L) {
+                playbackState.currentPlaybackPosition.toFloat() / playbackState.currentTrackDuration.toFloat()
+            } else 0F
+        }
 
         ControllerItem(
             Modifier.align(Alignment.Center),
@@ -62,11 +76,59 @@ fun TrackPlayerScreen(
             currentSelectedTrack,
             onPlayPauseToggle,
             isPlaying,
-            playbackState
+            currentProgress
+        )
+
+        WaveItem(
+            Modifier.align(Alignment.BottomCenter),
+            currentSelectedTrack,
+            currentProgress,
+            onSeekToPosition,
+            playbackState.currentTrackDuration
         )
 
     }
 
+}
+
+@Composable
+fun WaveItem(
+    modifier: Modifier,
+    currentSelectedTrack: TrackDomainModel?,
+    currentProgress: Float,
+    onSeekToPosition: (Long) -> Unit,
+    currentTrackDuration: Long
+) {
+
+    val seekToValue: (Float) -> Long = remember(currentTrackDuration) {
+        {
+
+            (String.format("%.1f", it).toDouble()  * currentTrackDuration).toLong()
+        }
+    }
+
+    AudioWaveform(
+        modifier = modifier
+            .padding(start = 20.dp, end = 20.dp)
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        style = Fill,
+        waveformAlignment = WaveformAlignment.Center,
+        amplitudeType = AmplitudeType.Avg,
+        progressBrush = SolidColor(Color.Red),
+        waveformBrush = SolidColor(MaterialTheme.colors.onSurface),
+        spikeWidth = 2.dp,
+        spikePadding = 2.dp,
+        spikeRadius = 2.dp,
+        progress = currentProgress,
+        amplitudes = currentSelectedTrack?.wavesList ?: emptyList(),
+        onProgressChange = {
+            onSeekToPosition(seekToValue(it))
+            Log.i( "onSeekToPosition: ", it.toString())
+        },
+        onProgressChangeFinished = {},
+    )
+    Log.i("WaveItem: ", currentSelectedTrack?.wavesList.toString())
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -154,13 +216,8 @@ fun CollapsedItem(
     currentSelectedTrack: TrackDomainModel?,
     onPlayPauseToggle: () -> Unit,
     isPlaying: Boolean,
-    playbackState: PlaybackState,
+    currentProgress: Float,
 ) {
-    val currentProgress = remember(playbackState) {
-        if (playbackState.currentTrackDuration != 0L) {
-            playbackState.currentPlaybackPosition.toFloat() / playbackState.currentTrackDuration.toFloat()
-        } else 0F
-    }
 
     Column {
 
