@@ -27,7 +27,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.R
-import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.util.extensions.toTimeFormat
 
@@ -36,7 +35,8 @@ import com.ashehata.me_player.util.extensions.toTimeFormat
 fun TrackItem(
     trackUIModel: TrackUIModel,
     onTrackClicked: () -> Unit,
-    isSelected: Boolean = false
+    isSelected: Boolean = false,
+    toggleTrackToFavourite: (TrackUIModel) -> Unit
 ) {
 
     val trackNameColor: @Composable () -> Color = remember(isSelected) {
@@ -102,8 +102,11 @@ fun TrackItem(
                 )
             )
         }
-        IconButton(onClick = { }) {
-            Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null, tint = Color.Red)
+        IconButton(onClick = { toggleTrackToFavourite(trackUIModel) }) {
+            Icon(
+                imageVector = Icons.Outlined.Favorite, contentDescription = null, tint =
+                if (trackUIModel.isFav) Color.Red else Color.White
+            )
 
         }
 

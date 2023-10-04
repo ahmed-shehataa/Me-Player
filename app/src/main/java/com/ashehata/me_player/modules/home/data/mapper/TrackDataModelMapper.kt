@@ -6,5 +6,5 @@ import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 
 fun TrackDomainModel.toLocalDb(): TrackDataModel =
     TrackDataModel(
-        id, name, uri, duration, size, wavesList
+        id, name, uri, duration, size, wavesList, isFav, playingCount
     )

@@ -6,10 +6,12 @@ import androidx.media3.common.MediaItem
 import androidx.paging.cachedIn
 import com.ashehata.me_player.amplitude.MyAmplitude
 import com.ashehata.me_player.base.BaseViewModel
+import com.ashehata.me_player.modules.home.domain.usecase.UpdateTrackUseCase
 import com.ashehata.me_player.modules.home.domain.usecase.UpdateTracksListUseCase
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
+import com.ashehata.me_player.modules.home.presentation.mapper.toDomain
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.modules.home.presentation.pagination.TracksPagingFlow
 import com.ashehata.me_player.player.MyPlayer
@@ -25,6 +27,7 @@ import javax.inject.Inject
 class TracksViewModel @Inject constructor(
     private val tracksPagingFlow: TracksPagingFlow,
     private val updateTracksListUseCase: UpdateTracksListUseCase,
+    private val updateTrackUseCase: UpdateTrackUseCase,
     private val myAmplitude: MyAmplitude,
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
@@ -42,10 +45,6 @@ class TracksViewModel @Inject constructor(
 
     override fun handleEvents(event: TracksEvent) {
         when (event) {
-            is TracksEvent.AddTrackToFavourite -> {
-
-            }
-
             is TracksEvent.ChangeScreenMode -> {
                 Log.i("ChangeScreenMode", "handleEvents: " + event.tracksScreenMode.name)
                 viewStates?.screenMode?.value = event.tracksScreenMode
@@ -67,8 +66,13 @@ class TracksViewModel @Inject constructor(
 
             }
 
-            is TracksEvent.RemoveTrackFromFavourite -> {
-
+            is TracksEvent.ToggleTrackToFavourite -> {
+                launchCoroutine {
+                    val newTrack =
+                        event.trackUIModel.copy(isFav = event.trackUIModel.isFav.not()).toDomain()
+                    Log.i("ToggleTrackToFavourite", "handleEvents: " + newTrack.isFav)
+                    updateTrackUseCase.execute(newTrack)
+                }
             }
 
             is TracksEvent.UpdateTracks -> {

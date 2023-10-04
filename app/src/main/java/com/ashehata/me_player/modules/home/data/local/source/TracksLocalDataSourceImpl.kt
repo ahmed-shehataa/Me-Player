@@ -1,5 +1,6 @@
 package com.ashehata.me_player.modules.home.data.local.source
 
+import android.util.Log
 import com.ashehata.me_player.modules.home.data.local.dao.TracksDao
 import com.ashehata.me_player.modules.home.data.model.TrackDataModel
 import javax.inject.Inject
@@ -27,6 +28,7 @@ class TracksLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun update(trackDataModel: TrackDataModel) {
+        Log.i("update", "update: " + trackDataModel.toString())
         dao.update(trackDataModel)
     }
 

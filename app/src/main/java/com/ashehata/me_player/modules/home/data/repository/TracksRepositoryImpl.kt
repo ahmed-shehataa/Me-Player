@@ -40,4 +40,8 @@ class TracksRepositoryImpl @Inject constructor(private val tracksLocalDataSource
     override suspend fun updateTracks(tracksList: List<TrackDomainModel>) {
         tracksLocalDataSource.insertAll(tracksList.map { it.toLocalDb() })
     }
+
+    override suspend fun updateTrack(trackDomainModel: TrackDomainModel) {
+        tracksLocalDataSource.update(trackDomainModel.toLocalDb())
+    }
 }

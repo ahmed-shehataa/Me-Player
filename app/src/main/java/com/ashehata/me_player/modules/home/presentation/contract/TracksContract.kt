@@ -15,8 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 sealed class TracksEvent : BaseEvent {
     data class OnTrackClicked(val trackUIModel: TrackUIModel) : TracksEvent()
-    data class AddTrackToFavourite(val trackUIModel: TrackUIModel) : TracksEvent()
-    data class RemoveTrackFromFavourite(val trackUIModel: TrackUIModel) : TracksEvent()
+    data class ToggleTrackToFavourite(val trackUIModel: TrackUIModel) : TracksEvent()
     data class UpdateTracks(val tracks: List<TrackDomainModel>) : TracksEvent()
     data class InitPlayer(val player: MyPlayer?) : TracksEvent()
     data class SeekToPosition(val position: Long) : TracksEvent()

@@ -35,6 +35,7 @@ fun TracksScreenContent(
     currentSelectedTrack: TrackUIModel?,
     screenMode: TracksScreenMode,
     onChangeScreenMode: (TracksScreenMode) -> Unit,
+    toggleTrackToFavourite: (TrackUIModel) -> Unit,
 ) {
     val allTracksListState = rememberLazyListState()
     val favouriteTracksListState = rememberLazyListState()
@@ -91,6 +92,7 @@ fun TracksScreenContent(
                     listState = allTracksListState,
                     currentSelectedTrack = currentSelectedTrack,
                     onTrackClicked = onTrackClicked,
+                    toggleTrackToFavourite = toggleTrackToFavourite
                 )
             }
 
@@ -100,6 +102,8 @@ fun TracksScreenContent(
                     listState = favouriteTracksListState,
                     currentSelectedTrack = currentSelectedTrack,
                     onTrackClicked = onTrackClicked,
+                    toggleTrackToFavourite = toggleTrackToFavourite
+
                 )
             }
 
@@ -109,6 +113,8 @@ fun TracksScreenContent(
                     listState = mostPlayedTracksListState,
                     currentSelectedTrack = currentSelectedTrack,
                     onTrackClicked = onTrackClicked,
+                    toggleTrackToFavourite = toggleTrackToFavourite
+
                 )
             }
         }

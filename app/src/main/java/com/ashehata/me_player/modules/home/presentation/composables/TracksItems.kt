@@ -22,6 +22,7 @@ fun TracksItems(
     currentSelectedTrack: TrackUIModel?,
     onTrackClicked: (TrackUIModel) -> Unit,
     listState: LazyListState,
+    toggleTrackToFavourite: (TrackUIModel) -> Unit,
 ) {
 
     LazyColumn(contentPadding = PaddingValues(top = 20.dp), state = listState) {
@@ -36,7 +37,8 @@ fun TracksItems(
                     isSelected = track == currentSelectedTrack,
                     onTrackClicked = {
                         onTrackClicked(track)
-                    }
+                    },
+                    toggleTrackToFavourite = toggleTrackToFavourite
                 )
 
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {

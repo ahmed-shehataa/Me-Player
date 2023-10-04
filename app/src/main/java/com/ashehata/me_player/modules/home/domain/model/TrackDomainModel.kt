@@ -7,4 +7,6 @@ data class TrackDomainModel(
     val duration: Int,
     val size: Int,
     val wavesList: List<Int> = emptyList(),
+    val isFav: Boolean = false,
+    val playingCount: Int = 0,
 )

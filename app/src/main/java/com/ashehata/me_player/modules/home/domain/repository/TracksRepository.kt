@@ -21,4 +21,6 @@ interface TracksRepository {
 
     suspend fun updateTracks(tracksList: List<TrackDomainModel>)
 
+    suspend fun updateTrack(trackDomainModel: TrackDomainModel)
+
 }

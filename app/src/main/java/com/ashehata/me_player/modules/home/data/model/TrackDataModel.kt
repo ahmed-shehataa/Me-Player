@@ -13,4 +13,6 @@ data class TrackDataModel(
     val duration: Int,
     val size: Int,
     val wavesList: List<Int>,
+    val isFav: Boolean,
+    val playingCount: Int,
 )

@@ -1,5 +1,6 @@
 package com.ashehata.me_player.modules.home.presentation.composables
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.EaseOutSine
 import androidx.compose.animation.core.animateDpAsState
@@ -92,6 +93,13 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
+    val toggleTrackToFavourite: (TrackUIModel) -> Unit = remember {
+        {
+            Log.i("toggleTrackToFavourite", "TracksScreen: ")
+            viewModel.setEvent(TracksEvent.ToggleTrackToFavourite(it))
+        }
+    }
+
     val onPlayPauseToggle: () -> Unit = remember {
         {
             viewModel.setEvent(TracksEvent.PlayPauseToggle)
@@ -147,7 +155,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
             onTrackClicked = onTrackClicked,
             currentSelectedTrack = currentSelectedTrack.value,
             screenMode = screenMode.value,
-            onChangeScreenMode = onChangeScreenMode
+            onChangeScreenMode = onChangeScreenMode,
+            toggleTrackToFavourite = toggleTrackToFavourite,
         )
     }
 

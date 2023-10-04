@@ -9,16 +9,16 @@ interface TracksDao {
     @Query("SELECT * FROM Tracks LIMIT :perPage OFFSET (:page - 1) * :perPage")
     suspend fun getAllTracks(page: Int, perPage: Int): List<TrackDataModel>
 
-    @Query("SELECT * FROM Tracks LIMIT :perPage OFFSET (:page - 1) * :perPage")
+    @Query("SELECT * FROM Tracks WHERE isFav == 1 LIMIT :perPage OFFSET (:page - 1) * :perPage")
     suspend fun getFavouriteTracks(page: Int, perPage: Int): List<TrackDataModel>
 
     @Query("SELECT * FROM Tracks LIMIT :perPage OFFSET (:page - 1) * :perPage")
     suspend fun getMostPlayedTracks(page: Int, perPage: Int): List<TrackDataModel>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(tracksList: List<TrackDataModel>)
 
-    @Update()
+    @Update
     suspend fun update(trackDataModel: TrackDataModel)
 
     @Query("DELETE FROM Tracks")
