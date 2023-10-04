@@ -79,13 +79,14 @@ fun TrackPlayerScreen(
             currentProgress
         )
 
-        WaveItem(
+
+        /*WaveItem(
             Modifier.align(Alignment.BottomCenter),
             currentSelectedTrack,
             currentProgress,
             onSeekToPosition,
             playbackState.currentTrackDuration
-        )
+        )*/
 
     }
 

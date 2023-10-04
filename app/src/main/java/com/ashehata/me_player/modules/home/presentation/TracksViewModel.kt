@@ -27,10 +27,10 @@ class TracksViewModel @Inject constructor(
     private val getFavouriteTracksListUseCase: GetFavouriteTracksListUseCase,
     private val getMostPlayedTracksListUseCase: GetMostPlayedTracksListUseCase,
     private val updateTracksListUseCase: UpdateTracksListUseCase,
-    private val myPlayer: MyPlayer,
     private val myAmplitude: MyAmplitude,
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
+    private var myPlayer: MyPlayer? = null
     private var playbackStateJob: Job? = null
 
     init {
@@ -59,7 +59,7 @@ class TracksViewModel @Inject constructor(
                 val newItem = MediaItem.Builder()
                     .setUri(event.trackDomainModel.uri)
                     .build()
-                myPlayer.iniPlayer(listOf(newItem).toMutableList())
+                myPlayer?.iniPlayer(listOf(newItem).toMutableList())
             }
 
             TracksEvent.RefreshScreen -> {
@@ -72,17 +72,18 @@ class TracksViewModel @Inject constructor(
 
             is TracksEvent.UpdateTracks -> {
                 // TODO uncomment
-                /*launchCoroutine(Dispatchers.IO) {
-                    updateTracksListUseCase.execute(event.tracks.map {
+                launchCoroutine(Dispatchers.IO) {
+                    updateTracksListUseCase.execute(event.tracks/*.map {
                         it.copy(wavesList = myAmplitude.audioToWave(it.uri))
-                    })
+                    }*/)
 
-                }*/
+                }
             }
 
             is TracksEvent.InitPlayer -> {
                 launchCoroutine(Dispatchers.Main) {
-                    myPlayer.playerState.collectLatest {
+                    myPlayer = event.player
+                    myPlayer?.playerState?.collectLatest {
                         Log.i("handleEvents: ", it.name)
                         updatePlaybackState(it)
                         viewStates?.isPlaying?.value = it == PlayerStates.STATE_PLAYING
@@ -93,19 +94,20 @@ class TracksViewModel @Inject constructor(
             }
 
             TracksEvent.PlayPauseToggle -> {
-                myPlayer.playPause()
+                myPlayer?.playPause()
             }
 
             is TracksEvent.SeekToPosition -> {
-                myPlayer.seekToPosition(event.position)
+                myPlayer?.seekToPosition(event.position)
             }
         }
     }
 
     private fun updatePlaybackState(state: PlayerStates) {
         playbackStateJob?.cancel()
-        playbackStateJob =
-            viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, myPlayer)
+        myPlayer?.let {
+            playbackStateJob = viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, it)
+        }
     }
 
     override fun createInitialViewState(): TracksViewState {
@@ -114,6 +116,6 @@ class TracksViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        myPlayer.releasePlayer()
+        myPlayer?.releasePlayer()
     }
 }

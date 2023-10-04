@@ -23,6 +23,7 @@ import androidx.media3.session.SessionToken
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.composables.TracksScreen
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
+import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.service.PlaybackService
 import com.ashehata.me_player.theme.AppTheme
 import com.google.common.util.concurrent.MoreExecutors
@@ -55,7 +56,7 @@ class HomeActivity : AppCompatActivity() {
         controllerFuture.addListener(
             {
                 // init player
-                tracksViewModel.setEvent(TracksEvent.InitPlayer(null))
+                tracksViewModel.setEvent(TracksEvent.InitPlayer(MyPlayer(controllerFuture.get())))
             },
             MoreExecutors.directExecutor()
         )
