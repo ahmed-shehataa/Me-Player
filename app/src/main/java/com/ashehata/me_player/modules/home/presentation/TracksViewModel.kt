@@ -3,15 +3,15 @@ package com.ashehata.me_player.modules.home.presentation
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
+import androidx.paging.cachedIn
 import com.ashehata.me_player.amplitude.MyAmplitude
 import com.ashehata.me_player.base.BaseViewModel
-import com.ashehata.me_player.modules.home.domain.usecase.GetAllTracksListUseCase
-import com.ashehata.me_player.modules.home.domain.usecase.GetFavouriteTracksListUseCase
-import com.ashehata.me_player.modules.home.domain.usecase.GetMostPlayedTracksListUseCase
 import com.ashehata.me_player.modules.home.domain.usecase.UpdateTracksListUseCase
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
+import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
+import com.ashehata.me_player.modules.home.presentation.pagination.TracksPagingFlow
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlayerStates
 import com.ashehata.me_player.util.extensions.launchPlaybackStateJob
@@ -23,22 +23,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TracksViewModel @Inject constructor(
-    private val getAllTracksListUseCase: GetAllTracksListUseCase,
-    private val getFavouriteTracksListUseCase: GetFavouriteTracksListUseCase,
-    private val getMostPlayedTracksListUseCase: GetMostPlayedTracksListUseCase,
+    private val tracksPagingFlow: TracksPagingFlow,
     private val updateTracksListUseCase: UpdateTracksListUseCase,
     private val myAmplitude: MyAmplitude,
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
+    val allTracks = tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.All)
+        .cachedIn(viewModelScope)
+    val favouriteTracks =
+        tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.Favourite)
+            .cachedIn(viewModelScope)
+    val mostPlayedTracks =
+        tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.MostPlayed)
+            .cachedIn(viewModelScope)
     private var myPlayer: MyPlayer? = null
     private var playbackStateJob: Job? = null
 
-    init {
-        launchCoroutine {
-            val tracks = getAllTracksListUseCase.execute()
-            viewStates?.allTracks = tracks
-        }
-    }
 
     override fun handleEvents(event: TracksEvent) {
         when (event) {
@@ -46,8 +46,9 @@ class TracksViewModel @Inject constructor(
 
             }
 
-            TracksEvent.ChangeScreenMode -> {
-
+            is TracksEvent.ChangeScreenMode -> {
+                Log.i("ChangeScreenMode", "handleEvents: " + event.tracksScreenMode.name)
+                viewStates?.screenMode?.value = event.tracksScreenMode
             }
 
             TracksEvent.ClearAllFavourite -> {
@@ -55,9 +56,9 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.OnTrackClicked -> {
-                viewStates?.currentSelectedTrack?.value = event.trackDomainModel
+                viewStates?.currentSelectedTrack?.value = event.trackUIModel
                 val newItem = MediaItem.Builder()
-                    .setUri(event.trackDomainModel.uri)
+                    .setUri(event.trackUIModel.uri)
                     .build()
                 myPlayer?.iniPlayer(listOf(newItem).toMutableList())
             }
@@ -73,9 +74,11 @@ class TracksViewModel @Inject constructor(
             is TracksEvent.UpdateTracks -> {
                 // TODO uncomment
                 launchCoroutine(Dispatchers.IO) {
-                    updateTracksListUseCase.execute(event.tracks/*.map {
+                    updateTracksListUseCase.execute(
+                        event.tracks/*.map {
                         it.copy(wavesList = myAmplitude.audioToWave(it.uri))
-                    }*/)
+                    }*/
+                    )
 
                 }
             }
@@ -106,7 +109,8 @@ class TracksViewModel @Inject constructor(
     private fun updatePlaybackState(state: PlayerStates) {
         playbackStateJob?.cancel()
         myPlayer?.let {
-            playbackStateJob = viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, it)
+            playbackStateJob =
+                viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, it)
         }
     }
 

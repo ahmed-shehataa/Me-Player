@@ -1,14 +1,9 @@
 package com.ashehata.me_player.modules.home.presentation.composables
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Divider
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Tab
@@ -16,38 +11,47 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
 import com.ashehata.me_player.R
-import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
-import kotlinx.coroutines.flow.Flow
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
+import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 
 
 @Composable
 fun TracksScreenContent(
-    allTracksPagingData: Flow<PagingData<TrackDomainModel>>?,
-    onTrackClicked: (TrackDomainModel) -> Unit,
-    currentSelectedTrack: TrackDomainModel?,
+    allTracksPagingData: LazyPagingItems<TrackUIModel>,
+    favouriteTracksPagingData: LazyPagingItems<TrackUIModel>,
+    mostPlayedTracksPagingData: LazyPagingItems<TrackUIModel>,
+    onTrackClicked: (TrackUIModel) -> Unit,
+    currentSelectedTrack: TrackUIModel?,
+    screenMode: TracksScreenMode,
+    onChangeScreenMode: (TracksScreenMode) -> Unit,
 ) {
+    val allTracksListState = rememberLazyListState()
+    val favouriteTracksListState = rememberLazyListState()
+    val mostPlayedTracksListState = rememberLazyListState()
 
-    val context = LocalContext.current
 
     Column(Modifier.background(MaterialTheme.colors.primary)) {
-        var tabIndex by remember { mutableStateOf(0) }
-        val tabs = listOf(R.string.all, R.string.fav, R.string.most_played)
-        val allTracks = allTracksPagingData?.collectAsLazyPagingItems()
+        val tabIndex by remember(screenMode) {
+            derivedStateOf {
+                when (screenMode) {
+                    TracksScreenMode.All -> 0
+                    TracksScreenMode.Favourite -> 1
+                    TracksScreenMode.MostPlayed -> 2
+                }
+            }
+        }
+        val tabs = TracksScreenMode.values()
 
         TopAppBar(
             elevation = 4.dp,
@@ -61,24 +65,17 @@ fun TracksScreenContent(
             backgroundColor = MaterialTheme.colors.primary,
             actions = {
 
-
             })
 
         TabRow(selectedTabIndex = tabIndex) {
-            tabs.forEachIndexed { index, title ->
-                Tab(text = { Text(stringResource(id = title)) },
+            tabs.forEachIndexed { index, type ->
+                Tab(text = { Text(stringResource(id = type.titleRes)) },
                     selected = tabIndex == index,
-                    onClick = { tabIndex = index },
+                    onClick = { onChangeScreenMode(type) },
                     icon = {
-                        val iconRes = when (index) {
-                            0 -> R.drawable.ic_queue_music
-                            1 -> R.drawable.ic_favorite
-                            2 -> R.drawable.ic_headset_mic
-                            else -> R.drawable.ic_queue_music
-                        }
                         Icon(
                             modifier = Modifier.size(26.dp),
-                            imageVector = ImageVector.vectorResource(id = iconRes),
+                            imageVector = ImageVector.vectorResource(id = type.iconRes),
                             contentDescription = null
                         )
                     }
@@ -86,33 +83,34 @@ fun TracksScreenContent(
             }
         }
 
-        LazyColumn(contentPadding = PaddingValues(top = 20.dp)) {
 
-
-            allTracks?.let {
-                //Toast.makeText(context, allTracks.itemCount.toString(), Toast.LENGTH_SHORT).show()
-
-                items(allTracks.itemCount) { index ->
-
-                    allTracks[index]?.let { currentTrack ->
-                        TrackItem(
-                            trackDomainModel = currentTrack,
-                            isSelected = currentTrack == currentSelectedTrack,
-                            onTrackClicked = {
-                                onTrackClicked(currentTrack)
-                            }
-                        )
-                    }
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Divider(
-                            color = MaterialTheme.colors.secondary,
-                            modifier = Modifier.width(100.dp)
-                        )
-                    }
-
-                }
+        when (screenMode) {
+            TracksScreenMode.All -> {
+                TracksItems(
+                    tracksPagingData = allTracksPagingData,
+                    listState = allTracksListState,
+                    currentSelectedTrack = currentSelectedTrack,
+                    onTrackClicked = onTrackClicked,
+                )
             }
 
+            TracksScreenMode.Favourite -> {
+                TracksItems(
+                    tracksPagingData = favouriteTracksPagingData,
+                    listState = favouriteTracksListState,
+                    currentSelectedTrack = currentSelectedTrack,
+                    onTrackClicked = onTrackClicked,
+                )
+            }
+
+            TracksScreenMode.MostPlayed -> {
+                TracksItems(
+                    tracksPagingData = mostPlayedTracksPagingData,
+                    listState = mostPlayedTracksListState,
+                    currentSelectedTrack = currentSelectedTrack,
+                    onTrackClicked = onTrackClicked,
+                )
+            }
         }
 
 

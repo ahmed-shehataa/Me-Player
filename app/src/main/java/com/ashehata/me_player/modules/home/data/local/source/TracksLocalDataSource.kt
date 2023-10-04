@@ -1,11 +1,23 @@
 package com.ashehata.me_player.modules.home.data.local.source
 
-import androidx.paging.PagingSource
 import com.ashehata.me_player.modules.home.data.model.TrackDataModel
 
 interface TracksLocalDataSource {
 
-    fun getAllTracks(): PagingSource<Int, TrackDataModel>
+    suspend fun getAllTracks(
+        page: Int,
+        perPage: Int,
+    ): List<TrackDataModel>
+
+    suspend fun getFavouriteTracks(
+        page: Int,
+        perPage: Int,
+    ): List<TrackDataModel>
+
+    suspend fun getMostPlayedTracks(
+        page: Int,
+        perPage: Int,
+    ): List<TrackDataModel>
 
     suspend fun insertAll(tracksList: List<TrackDataModel>)
 

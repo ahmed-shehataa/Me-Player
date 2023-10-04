@@ -28,12 +28,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.util.extensions.toTimeFormat
 
 
 @Composable
 fun TrackItem(
-    trackDomainModel: TrackDomainModel,
+    trackUIModel: TrackUIModel,
     onTrackClicked: () -> Unit,
     isSelected: Boolean = false
 ) {
@@ -84,7 +85,7 @@ fun TrackItem(
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
             Text(
-                text = trackDomainModel.name,
+                text = trackUIModel.name,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.typography.body1.copy(
@@ -93,7 +94,7 @@ fun TrackItem(
             )
 
             Text(
-                text = trackDomainModel.duration.toTimeFormat(),
+                text = trackUIModel.duration.toTimeFormat(),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.typography.body2.copy(

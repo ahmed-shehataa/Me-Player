@@ -20,10 +20,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.ashehata.me_player.modules.home.presentation.TracksViewModel
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
+import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import kotlinx.coroutines.launch
 
 
@@ -37,13 +39,17 @@ fun TracksScreen(viewModel: TracksViewModel) {
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
     )
+
     val viewStates = remember {
         viewModel.viewStates ?: TracksViewState()
     }
 
-    val allTracks = remember {
-        viewStates.allTracks
-    }
+    val allTracks = viewModel.allTracks.collectAsLazyPagingItems()
+
+    val favouriteTracks = viewModel.favouriteTracks.collectAsLazyPagingItems()
+
+    val mostPlayedTracks = viewModel.mostPlayedTracks.collectAsLazyPagingItems()
+
 
     val currentSelectedTrack = remember {
         viewStates.currentSelectedTrack
@@ -80,7 +86,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
         )
 
 
-    val onTrackClicked: (TrackDomainModel) -> Unit = remember {
+    val onTrackClicked: (TrackUIModel) -> Unit = remember {
         {
             viewModel.setEvent(TracksEvent.OnTrackClicked(it))
         }
@@ -95,6 +101,12 @@ fun TracksScreen(viewModel: TracksViewModel) {
     val onSeekToPosition: (Long) -> Unit = remember {
         {
             viewModel.setEvent(TracksEvent.SeekToPosition(it))
+        }
+    }
+
+    val onChangeScreenMode: (TracksScreenMode) -> Unit = remember {
+        {
+            viewModel.setEvent(TracksEvent.ChangeScreenMode(it))
         }
     }
 
@@ -130,8 +142,12 @@ fun TracksScreen(viewModel: TracksViewModel) {
     ) {
         TracksScreenContent(
             allTracksPagingData = allTracks,
+            favouriteTracksPagingData = favouriteTracks,
+            mostPlayedTracksPagingData = mostPlayedTracks,
             onTrackClicked = onTrackClicked,
             currentSelectedTrack = currentSelectedTrack.value,
+            screenMode = screenMode.value,
+            onChangeScreenMode = onChangeScreenMode
         )
     }
 

@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.player.PlaybackState
 import com.linc.audiowaveform.AudioWaveform
 import com.linc.audiowaveform.model.AmplitudeType
@@ -49,7 +50,7 @@ import com.linc.audiowaveform.model.WaveformAlignment
 @Composable
 fun PlayerScreenBottomSheet(
     onCollapsedItemClicked: () -> Unit,
-    currentSelectedTrack: TrackDomainModel?,
+    currentSelectedTrack: TrackUIModel?,
     onPlayPauseToggle: () -> Unit,
     isPlaying: Boolean,
     playbackState: PlaybackState,
@@ -104,7 +105,7 @@ fun WaveItem(
     val seekToValue: (Float) -> Long = remember(currentTrackDuration) {
         {
 
-            (String.format("%.1f", it).toDouble()  * currentTrackDuration).toLong()
+            (String.format("%.1f", it).toDouble() * currentTrackDuration).toLong()
         }
     }
 
@@ -125,7 +126,7 @@ fun WaveItem(
         amplitudes = currentSelectedTrack?.wavesList ?: emptyList(),
         onProgressChange = {
             onSeekToPosition(seekToValue(it))
-            Log.i( "onSeekToPosition: ", it.toString())
+            Log.i("onSeekToPosition: ", it.toString())
         },
         onProgressChangeFinished = {},
     )
@@ -214,7 +215,7 @@ fun ControllerItem(
 fun CollapsedItem(
     modifier: Modifier,
     onItemClicked: () -> Unit,
-    currentSelectedTrack: TrackDomainModel?,
+    currentSelectedTrack: TrackUIModel?,
     onPlayPauseToggle: () -> Unit,
     isPlaying: Boolean,
     currentProgress: Float,

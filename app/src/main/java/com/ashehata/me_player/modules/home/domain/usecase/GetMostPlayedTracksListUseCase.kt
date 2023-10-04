@@ -1,13 +1,13 @@
 package com.ashehata.me_player.modules.home.domain.usecase
 
-import androidx.paging.PagingSource
-import com.ashehata.me_player.modules.home.data.model.TrackDataModel
+import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.domain.repository.TracksRepository
 import javax.inject.Inject
 
-class GetMostPlayedTracksListUseCase @Inject constructor(private val tracksRepository: TracksRepository) {
+class GetMostPlayedTracksListUseCase @Inject constructor(private val tracksRepository: TracksRepository) :
+    ITracksUseCase {
 
-    suspend fun execute(): PagingSource<Int, TrackDataModel> {
-        return tracksRepository.getMostPlayedTracks()
+    override suspend fun execute(page: Int, perPage: Int): List<TrackDomainModel> {
+        return tracksRepository.getMostPlayedTracks(page, perPage)
     }
 }
