@@ -4,6 +4,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.EaseOutSine
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
@@ -14,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
@@ -101,9 +105,13 @@ fun TracksScreen(viewModel: TracksViewModel) {
     }
 
     BottomSheetScaffold(
+        modifier = Modifier
+            .background(MaterialTheme.colors.primary)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            TrackPlayerScreen(
+            PlayerScreenBottomSheet(
                 onCollapsedItemClicked = {
                     scope.launch {
                         bottomSheetScaffoldState.bottomSheetState.expand()

@@ -47,7 +47,7 @@ import com.linc.audiowaveform.model.AmplitudeType
 import com.linc.audiowaveform.model.WaveformAlignment
 
 @Composable
-fun TrackPlayerScreen(
+fun PlayerScreenBottomSheet(
     onCollapsedItemClicked: () -> Unit,
     currentSelectedTrack: TrackDomainModel?,
     onPlayPauseToggle: () -> Unit,
