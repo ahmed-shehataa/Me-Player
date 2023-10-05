@@ -45,8 +45,6 @@ fun TracksScreen(viewModel: TracksViewModel) {
         viewModel.viewStates ?: TracksViewState()
     }
 
-    val allTracks = viewModel.allTracks.collectAsLazyPagingItems()
-
     val favouriteTracks = viewModel.favouriteTracks.collectAsLazyPagingItems()
 
     val mostPlayedTracks = viewModel.mostPlayedTracks.collectAsLazyPagingItems()
@@ -149,7 +147,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
         sheetElevation = 4.dp,
     ) {
         TracksScreenContent(
-            allTracksPagingData = allTracks,
+            allTracksPagingData = viewModel.allTracksPagingCompose,
             favouriteTracksPagingData = favouriteTracks,
             mostPlayedTracksPagingData = mostPlayedTracks,
             onTrackClicked = onTrackClicked,
@@ -157,6 +155,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
             screenMode = screenMode.value,
             onChangeScreenMode = onChangeScreenMode,
             toggleTrackToFavourite = toggleTrackToFavourite,
+            bottomPadding = it.calculateBottomPadding()
         )
     }
 

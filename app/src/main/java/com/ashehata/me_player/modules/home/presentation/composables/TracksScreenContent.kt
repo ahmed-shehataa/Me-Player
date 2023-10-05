@@ -2,6 +2,7 @@ package com.ashehata.me_player.modules.home.presentation.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
@@ -19,16 +20,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
+import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
 
 
 @Composable
 fun TracksScreenContent(
-    allTracksPagingData: LazyPagingItems<TrackUIModel>,
+    allTracksPagingData: AllTracksPagingCompose,
     favouriteTracksPagingData: LazyPagingItems<TrackUIModel>,
     mostPlayedTracksPagingData: LazyPagingItems<TrackUIModel>,
     onTrackClicked: (TrackUIModel) -> Unit,
@@ -36,13 +39,14 @@ fun TracksScreenContent(
     screenMode: TracksScreenMode,
     onChangeScreenMode: (TracksScreenMode) -> Unit,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
+    bottomPadding: Dp
 ) {
     val allTracksListState = rememberLazyListState()
     val favouriteTracksListState = rememberLazyListState()
     val mostPlayedTracksListState = rememberLazyListState()
 
 
-    Column(Modifier.background(MaterialTheme.colors.primary)) {
+    Column(Modifier.background(MaterialTheme.colors.primary).padding(bottom = bottomPadding)) {
         val tabIndex by remember(screenMode) {
             derivedStateOf {
                 when (screenMode) {
@@ -97,25 +101,25 @@ fun TracksScreenContent(
             }
 
             TracksScreenMode.Favourite -> {
-                TracksItems(
+                /*TracksItems(
                     tracksPagingData = favouriteTracksPagingData,
                     listState = favouriteTracksListState,
                     currentSelectedTrack = currentSelectedTrack,
                     onTrackClicked = onTrackClicked,
                     toggleTrackToFavourite = toggleTrackToFavourite
 
-                )
+                )*/
             }
 
             TracksScreenMode.MostPlayed -> {
-                TracksItems(
+                /*TracksItems(
                     tracksPagingData = mostPlayedTracksPagingData,
                     listState = mostPlayedTracksListState,
                     currentSelectedTrack = currentSelectedTrack,
                     onTrackClicked = onTrackClicked,
                     toggleTrackToFavourite = toggleTrackToFavourite
 
-                )
+                )*/
             }
         }
 

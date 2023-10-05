@@ -13,6 +13,7 @@ import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
 import com.ashehata.me_player.modules.home.presentation.mapper.toDomain
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
+import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.TracksPagingFlow
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlayerStates
@@ -29,10 +30,12 @@ class TracksViewModel @Inject constructor(
     private val updateTracksListUseCase: UpdateTracksListUseCase,
     private val updateTrackUseCase: UpdateTrackUseCase,
     private val myAmplitude: MyAmplitude,
+    val allTracksPagingCompose: AllTracksPagingCompose
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
-    val allTracks = tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.All)
-        .cachedIn(viewModelScope)
+    /* val allTracks: Flow<PagingData<TrackUIModel>> = tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.All)
+         .cachedIn(viewModelScope)*/
+
     val favouriteTracks =
         tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.Favourite)
             .cachedIn(viewModelScope)
@@ -68,10 +71,12 @@ class TracksViewModel @Inject constructor(
 
             is TracksEvent.ToggleTrackToFavourite -> {
                 launchCoroutine {
-                    val newTrack =
-                        event.trackUIModel.copy(isFav = event.trackUIModel.isFav.not()).toDomain()
-                    Log.i("ToggleTrackToFavourite", "handleEvents: " + newTrack.isFav)
-                    updateTrackUseCase.execute(newTrack)
+                    val newTrack = event.trackUIModel.copy(isFav = event.trackUIModel.isFav.not())
+                    updateTrackUseCase.execute(newTrack.toDomain())
+                    allTracksPagingCompose.updateItem(
+                        oldItem = event.trackUIModel,
+                        newItem = newTrack
+                    )
                 }
             }
 
