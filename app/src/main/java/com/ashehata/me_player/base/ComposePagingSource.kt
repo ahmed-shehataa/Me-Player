@@ -93,6 +93,14 @@ abstract class ComposePagingSource<T> {
         _list[itemIndex] = newItem
     }
 
+    fun removeItem(item: T) {
+        _list.remove(item)
+    }
+
+    fun addItem(item: T) {
+        _list.add(item)
+    }
+
     protected abstract suspend fun loadPage(page: Int, perPage: Int): List<T>
 }
 

@@ -19,9 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.ashehata.me_player.modules.home.presentation.TracksViewModel
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
@@ -33,7 +31,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TracksScreen(viewModel: TracksViewModel) {
-    val context = LocalContext.current
 
     val scope = rememberCoroutineScope()
 
@@ -45,11 +42,6 @@ fun TracksScreen(viewModel: TracksViewModel) {
         viewModel.viewStates ?: TracksViewState()
     }
 
-    val favouriteTracks = viewModel.favouriteTracks.collectAsLazyPagingItems()
-
-    val mostPlayedTracks = viewModel.mostPlayedTracks.collectAsLazyPagingItems()
-
-
     val currentSelectedTrack = remember {
         viewStates.currentSelectedTrack
     }
@@ -60,20 +52,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
         viewStates.isPlaying
     }
 
-    val isLoading = remember {
-        viewStates.isLoading
-    }
-
-    val isRefreshing = remember {
-        viewStates.isRefreshing
-    }
-
     val screenMode = remember {
         viewStates.screenMode
-    }
-
-    val isNetworkError = remember {
-        viewStates.isNetworkError
     }
 
     val bottomSheetHeight =
@@ -148,8 +128,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
     ) {
         TracksScreenContent(
             allTracksPagingData = viewModel.allTracksPagingCompose,
-            favouriteTracksPagingData = favouriteTracks,
-            mostPlayedTracksPagingData = mostPlayedTracks,
+            favouriteTracksPagingData = viewModel.favTracksPagingCompose,
+            mostPlayedTracksPagingData = viewModel.mostPlayedTracksPagingCompose,
             onTrackClicked = onTrackClicked,
             currentSelectedTrack = currentSelectedTrack.value,
             screenMode = screenMode.value,

@@ -31,11 +31,8 @@ sealed class TracksState : BaseState {
 }
 
 data class TracksViewState(
-    override val isNetworkError: MutableState<Boolean> = mutableStateOf(false),
-    override val isRefreshing: MutableState<Boolean> = mutableStateOf(false),
-    override val isLoading: MutableState<Boolean> = mutableStateOf(false),
     val isPlaying: MutableState<Boolean> = mutableStateOf(false),
     val playbackState: MutableStateFlow<PlaybackState> = MutableStateFlow(PlaybackState(0L, 0L)),
     val currentSelectedTrack: MutableState<TrackUIModel?> = mutableStateOf(null),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),
-) : BaseViewState
+) : BaseViewState()

@@ -3,7 +3,6 @@ package com.ashehata.me_player.modules.home.presentation
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
-import androidx.paging.cachedIn
 import com.ashehata.me_player.amplitude.MyAmplitude
 import com.ashehata.me_player.base.BaseViewModel
 import com.ashehata.me_player.modules.home.domain.usecase.UpdateTrackUseCase
@@ -12,8 +11,9 @@ import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
 import com.ashehata.me_player.modules.home.presentation.mapper.toDomain
-import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
+import com.ashehata.me_player.modules.home.presentation.pagination.FavTracksPagingCompose
+import com.ashehata.me_player.modules.home.presentation.pagination.MostPlayedTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.TracksPagingFlow
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlayerStates
@@ -26,22 +26,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TracksViewModel @Inject constructor(
-    private val tracksPagingFlow: TracksPagingFlow,
     private val updateTracksListUseCase: UpdateTracksListUseCase,
     private val updateTrackUseCase: UpdateTrackUseCase,
     private val myAmplitude: MyAmplitude,
-    val allTracksPagingCompose: AllTracksPagingCompose
+    val allTracksPagingCompose: AllTracksPagingCompose,
+    val favTracksPagingCompose: FavTracksPagingCompose,
+    val mostPlayedTracksPagingCompose: MostPlayedTracksPagingCompose,
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
-    /* val allTracks: Flow<PagingData<TrackUIModel>> = tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.All)
-         .cachedIn(viewModelScope)*/
-
-    val favouriteTracks =
-        tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.Favourite)
-            .cachedIn(viewModelScope)
-    val mostPlayedTracks =
-        tracksPagingFlow.getTracksFlow(tracksScreenMode = TracksScreenMode.MostPlayed)
-            .cachedIn(viewModelScope)
     private var myPlayer: MyPlayer? = null
     private var playbackStateJob: Job? = null
 
@@ -77,6 +69,12 @@ class TracksViewModel @Inject constructor(
                         oldItem = event.trackUIModel,
                         newItem = newTrack
                     )
+                    if (newTrack.isFav) {
+                        favTracksPagingCompose.addItem(newTrack)
+                    } else {
+                        favTracksPagingCompose.removeItem(event.trackUIModel)
+                    }
+
                 }
             }
 

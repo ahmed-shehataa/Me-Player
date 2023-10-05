@@ -22,18 +22,19 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.paging.compose.LazyPagingItems
 import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
+import com.ashehata.me_player.modules.home.presentation.pagination.FavTracksPagingCompose
+import com.ashehata.me_player.modules.home.presentation.pagination.MostPlayedTracksPagingCompose
 
 
 @Composable
 fun TracksScreenContent(
     allTracksPagingData: AllTracksPagingCompose,
-    favouriteTracksPagingData: LazyPagingItems<TrackUIModel>,
-    mostPlayedTracksPagingData: LazyPagingItems<TrackUIModel>,
+    favouriteTracksPagingData: FavTracksPagingCompose,
+    mostPlayedTracksPagingData: MostPlayedTracksPagingCompose,
     onTrackClicked: (TrackUIModel) -> Unit,
     currentSelectedTrack: TrackUIModel?,
     screenMode: TracksScreenMode,
@@ -101,25 +102,25 @@ fun TracksScreenContent(
             }
 
             TracksScreenMode.Favourite -> {
-                /*TracksItems(
+                TracksItems(
                     tracksPagingData = favouriteTracksPagingData,
                     listState = favouriteTracksListState,
                     currentSelectedTrack = currentSelectedTrack,
                     onTrackClicked = onTrackClicked,
                     toggleTrackToFavourite = toggleTrackToFavourite
 
-                )*/
+                )
             }
 
             TracksScreenMode.MostPlayed -> {
-                /*TracksItems(
+                TracksItems(
                     tracksPagingData = mostPlayedTracksPagingData,
                     listState = mostPlayedTracksListState,
                     currentSelectedTrack = currentSelectedTrack,
                     onTrackClicked = onTrackClicked,
                     toggleTrackToFavourite = toggleTrackToFavourite
 
-                )*/
+                )
             }
         }
 

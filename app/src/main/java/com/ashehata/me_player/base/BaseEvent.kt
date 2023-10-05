@@ -1,13 +1,14 @@
 package com.ashehata.me_player.base
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 
 interface BaseEvent
 
 interface BaseState
 
-interface BaseViewState {
-    val isRefreshing: MutableState<Boolean>
-    val isNetworkError: MutableState<Boolean>
-    val isLoading: MutableState<Boolean>
+abstract class BaseViewState {
+    val isNetworkError: MutableState<Boolean> = mutableStateOf(false)
+    val isRefreshing: MutableState<Boolean> = mutableStateOf(false)
+    val isLoading: MutableState<Boolean> = mutableStateOf(false)
 }
