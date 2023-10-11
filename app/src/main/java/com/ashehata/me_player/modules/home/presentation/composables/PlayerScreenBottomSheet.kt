@@ -5,7 +5,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -211,6 +213,7 @@ fun ControllerItem(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CollapsedItem(
     modifier: Modifier,
@@ -260,7 +263,7 @@ fun CollapsedItem(
             }
 
             Text(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).basicMarquee(),
                 text = currentSelectedTrack?.name ?: "",
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
