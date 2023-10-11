@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -113,7 +114,17 @@ fun TracksScreenContent(
                 tabs.forEachIndexed { index, type ->
                     Tab(text = { Text(stringResource(id = type.titleRes)) },
                         selected = tabIndex == index,
-                        onClick = { onChangeScreenMode(type) },
+                        onClick = {
+                            onChangeScreenMode(type)
+                            scope.launch {
+                                scrollToTop(
+                                    screenMode,
+                                    allTracksListState,
+                                    favouriteTracksListState,
+                                    mostPlayedTracksListState
+                                )
+                            }
+                        },
                         icon = {
                             Icon(
                                 modifier = Modifier.size(26.dp),
@@ -172,24 +183,38 @@ fun TracksScreenContent(
         ) {
             ScrollTopButton(Modifier) {
                 scope.launch {
-                    when (screenMode) {
-                        TracksScreenMode.All -> {
-                            allTracksListState.animateScrollToItem(0)
-                        }
-
-                        TracksScreenMode.Favourite -> {
-                            favouriteTracksListState.animateScrollToItem(0)
-                        }
-
-                        TracksScreenMode.MostPlayed -> {
-                            mostPlayedTracksListState.animateScrollToItem(0)
-                        }
-                    }
+                    scrollToTop(
+                        screenMode,
+                        allTracksListState,
+                        favouriteTracksListState,
+                        mostPlayedTracksListState
+                    )
                 }
-
             }
         }
 
     }
 
+}
+
+suspend fun scrollToTop(
+    screenMode: TracksScreenMode,
+    allTracksListState: LazyListState,
+    favouriteTracksListState: LazyListState,
+    mostPlayedTracksListState: LazyListState
+) {
+
+    when (screenMode) {
+        TracksScreenMode.All -> {
+            allTracksListState.animateScrollToItem(0)
+        }
+
+        TracksScreenMode.Favourite -> {
+            favouriteTracksListState.animateScrollToItem(0)
+        }
+
+        TracksScreenMode.MostPlayed -> {
+            mostPlayedTracksListState.animateScrollToItem(0)
+        }
+    }
 }
