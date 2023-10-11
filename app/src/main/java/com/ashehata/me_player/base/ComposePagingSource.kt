@@ -7,12 +7,11 @@ import com.ashehata.me_player.common.models.PagingSetup
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Duration.Companion.seconds
 
 abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = PagingSetup()) {
     companion object {
@@ -37,13 +36,13 @@ abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = Pag
      *
      */
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
-        Log.i("ComposePagingSource", ": "+ exception.localizedMessage)
+        Log.i("ComposePagingSource", ": " + exception.localizedMessage)
         if (currentPage == FIRST_PAGE_NUMBER)
             _state.value = PagingState.FAILURE_AT_FIRST
         else
             _state.value = PagingState.FAILURE_AT_NEXT
     }
-    private val coroutineScope = CoroutineScope(Dispatchers.IO + exceptionHandler)
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + exceptionHandler + SupervisorJob())
 
 
     init {
@@ -52,12 +51,12 @@ abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = Pag
 
     fun loadNextPage(isRetry: Boolean = false) {
         Log.i("loadNextPage", "out: " + _state.value.name)
-        if (_state.value == PagingState.LOADING_FIRST_PAGE
-            || _state.value == PagingState.LOADING_NEXT_PAGE
-            || _state.value == PagingState.REACHED_LAST_PAGE
-        ) return
+        if (_state.value != PagingState.IDLE) return
 
         coroutineScope.launch {
+            // for testing purpose
+            //if (currentPage == 2 ) throw IOException()
+
             if (isRetry.not())
                 currentPage++
             Log.i("loadNextPage", "currentPage: $currentPage")

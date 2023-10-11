@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Tab
@@ -21,7 +24,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -41,7 +43,7 @@ import com.ashehata.me_player.modules.home.presentation.pagination.MostPlayedTra
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun TracksScreenContent(
     allTracksPagingData: AllTracksPagingCompose,
@@ -58,21 +60,23 @@ fun TracksScreenContent(
     val allTracksListState = rememberLazyListState()
     val favouriteTracksListState = rememberLazyListState()
     val mostPlayedTracksListState = rememberLazyListState()
-
-    val isScrollVisible: State<Boolean> = remember(screenMode) {
+    val pagerState = rememberPagerState()
+    val isScrollVisible: State<Boolean> = remember(pagerState) {
         derivedStateOf {
-            when (screenMode) {
-                TracksScreenMode.All -> {
+            when (pagerState.currentPage) {
+                0 -> {
                     allTracksListState.firstVisibleItemIndex > 1
                 }
 
-                TracksScreenMode.Favourite -> {
+                1 -> {
                     favouriteTracksListState.firstVisibleItemIndex > 1
                 }
 
-                TracksScreenMode.MostPlayed -> {
+                2 -> {
                     mostPlayedTracksListState.firstVisibleItemIndex > 1
                 }
+
+                else -> false
             }
         }
     }
@@ -85,15 +89,6 @@ fun TracksScreenContent(
     ) {
 
         Column {
-            val tabIndex by remember(screenMode) {
-                derivedStateOf {
-                    when (screenMode) {
-                        TracksScreenMode.All -> 0
-                        TracksScreenMode.Favourite -> 1
-                        TracksScreenMode.MostPlayed -> 2
-                    }
-                }
-            }
             val tabs = TracksScreenMode.values()
 
             TopAppBar(
@@ -110,13 +105,14 @@ fun TracksScreenContent(
 
                 })
 
-            TabRow(selectedTabIndex = tabIndex) {
+            TabRow(selectedTabIndex = pagerState.currentPage) {
                 tabs.forEachIndexed { index, type ->
                     Tab(text = { Text(stringResource(id = type.titleRes)) },
-                        selected = tabIndex == index,
+                        selected = pagerState.currentPage == index,
                         onClick = {
                             onChangeScreenMode(type)
                             scope.launch {
+                                pagerState.animateScrollToPage(index)
                                 scrollToTop(
                                     screenMode,
                                     allTracksListState,
@@ -137,37 +133,39 @@ fun TracksScreenContent(
             }
 
 
-            when (screenMode) {
-                TracksScreenMode.All -> {
-                    TracksItems(
-                        tracksPagingData = allTracksPagingData,
-                        listState = allTracksListState,
-                        currentSelectedTrack = currentSelectedTrack,
-                        onTrackClicked = onTrackClicked,
-                        toggleTrackToFavourite = toggleTrackToFavourite
-                    )
-                }
+            HorizontalPager(pageCount = TracksScreenMode.values().size, state = pagerState) {
+                when (it) {
+                    0 -> {
+                        TracksList(
+                            tracksPagingData = allTracksPagingData,
+                            listState = allTracksListState,
+                            currentSelectedTrack = currentSelectedTrack,
+                            onTrackClicked = onTrackClicked,
+                            toggleTrackToFavourite = toggleTrackToFavourite
+                        )
+                    }
 
-                TracksScreenMode.Favourite -> {
-                    TracksItems(
-                        tracksPagingData = favouriteTracksPagingData,
-                        listState = favouriteTracksListState,
-                        currentSelectedTrack = currentSelectedTrack,
-                        onTrackClicked = onTrackClicked,
-                        toggleTrackToFavourite = toggleTrackToFavourite
+                    1 -> {
+                        TracksList(
+                            tracksPagingData = favouriteTracksPagingData,
+                            listState = favouriteTracksListState,
+                            currentSelectedTrack = currentSelectedTrack,
+                            onTrackClicked = onTrackClicked,
+                            toggleTrackToFavourite = toggleTrackToFavourite
 
-                    )
-                }
+                        )
+                    }
 
-                TracksScreenMode.MostPlayed -> {
-                    TracksItems(
-                        tracksPagingData = mostPlayedTracksPagingData,
-                        listState = mostPlayedTracksListState,
-                        currentSelectedTrack = currentSelectedTrack,
-                        onTrackClicked = onTrackClicked,
-                        toggleTrackToFavourite = toggleTrackToFavourite
+                    2 -> {
+                        TracksList(
+                            tracksPagingData = mostPlayedTracksPagingData,
+                            listState = mostPlayedTracksListState,
+                            currentSelectedTrack = currentSelectedTrack,
+                            onTrackClicked = onTrackClicked,
+                            toggleTrackToFavourite = toggleTrackToFavourite
 
-                    )
+                        )
+                    }
                 }
             }
 
@@ -177,7 +175,7 @@ fun TracksScreenContent(
         AnimatedVisibility(
             visible = isScrollVisible.value, modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 12.dp),
+                .padding(bottom = 16.dp),
             enter = scaleIn(),
             exit = scaleOut()
         ) {

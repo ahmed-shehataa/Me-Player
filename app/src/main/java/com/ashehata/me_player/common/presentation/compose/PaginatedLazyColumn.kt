@@ -38,9 +38,17 @@ fun <T> PaginatedLazyColumn(
     isRefreshing: Boolean = false,
     item: @Composable (T) -> Unit,
     emptyPlaceHolder: @Composable () -> Unit = {
-        EmptyListPlaceholder(Modifier.verticalScroll(rememberScrollState()))
+        EmptyListPlaceholder(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()))
     },
-    errorPlaceHolder: @Composable () -> Unit = { },
+    errorPlaceHolder: @Composable () -> Unit = {
+        ErrorPlaceholder(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()))
+    },
     loadingPlaceHolder: @Composable () -> Unit = {
         Box(
             modifier = Modifier
@@ -87,7 +95,7 @@ fun <T> PaginatedLazyColumn(
             LoadingCompose()
         } else if (pagingState == PagingState.FAILURE_AT_FIRST) {
             errorPlaceHolder()
-        } else if (composePagingSource.list.isEmpty() && pagingState == PagingState.IDLE) {
+        } else if (composePagingSource.list.isEmpty() && pagingState == PagingState.REACHED_LAST_PAGE) {
             emptyPlaceHolder()
         } else {
             LazyColumn(state = lazyListState, contentPadding = contentPadding) {
@@ -104,7 +112,7 @@ fun <T> PaginatedLazyColumn(
 
                 if (pagingState == PagingState.FAILURE_AT_NEXT) {
                     item {
-                        errorPlaceHolder()
+                        ErrorPlaceholder()
                     }
                 }
             }

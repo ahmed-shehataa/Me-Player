@@ -16,7 +16,7 @@ import com.ashehata.me_player.common.presentation.compose.PaginatedLazyColumn
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 
 @Composable
-fun TracksItems(
+fun TracksList(
     tracksPagingData: ComposePagingSource<TrackUIModel>,
     currentSelectedTrack: TrackUIModel?,
     onTrackClicked: (TrackUIModel) -> Unit,
@@ -27,7 +27,7 @@ fun TracksItems(
     PaginatedLazyColumn(
         composePagingSource = tracksPagingData,
         lazyListState = listState,
-        contentPadding = PaddingValues(top = 20.dp),
+        contentPadding = PaddingValues(vertical = 20.dp),
         item = { track ->
             TrackItem(
                 trackUIModel = track,
