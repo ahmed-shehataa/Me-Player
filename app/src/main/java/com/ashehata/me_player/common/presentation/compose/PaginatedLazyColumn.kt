@@ -1,6 +1,5 @@
 package com.ashehata.me_player.common.presentation.compose
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -73,7 +72,7 @@ fun <T> PaginatedLazyColumn(
     LaunchedEffect(key1 = currentVisibleItem.value) {
         // if reached to the end of current page, so load next one
         val index = currentVisibleItem.value ?: 0
-        if (index < lazyListState.layoutInfo.totalItemsCount - 2) {
+        if (index > lazyListState.layoutInfo.totalItemsCount - 4) {
             composePagingSource.loadNextPage()
         }
     }
@@ -119,6 +118,3 @@ fun <T> PaginatedLazyColumn(
     }
 
 }
-
-private fun LazyListState.isScrolledToTheEnd() =
-    layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1

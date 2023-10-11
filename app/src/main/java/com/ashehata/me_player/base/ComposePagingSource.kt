@@ -3,6 +3,7 @@ package com.ashehata.me_player.base
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.ashehata.me_player.common.models.PagingSetup
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,12 +11,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.seconds
 
-abstract class ComposePagingSource<T> {
+abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = PagingSetup()) {
     companion object {
         const val FIRST_PAGE_NUMBER = 1
-        const val PAGE_SIZE = 20
     }
 
     private var currentPage = 0
@@ -36,6 +37,7 @@ abstract class ComposePagingSource<T> {
      *
      */
     private val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+        Log.i("ComposePagingSource", ": "+ exception.localizedMessage)
         if (currentPage == FIRST_PAGE_NUMBER)
             _state.value = PagingState.FAILURE_AT_FIRST
         else
@@ -60,18 +62,20 @@ abstract class ComposePagingSource<T> {
                 currentPage++
             Log.i("loadNextPage", "currentPage: $currentPage")
 
-
             _state.value =
                 if (currentPage == FIRST_PAGE_NUMBER) PagingState.LOADING_FIRST_PAGE else PagingState.LOADING_NEXT_PAGE
 
-            delay(2.seconds)
+            // for testing purpose
+            //delay(2.seconds)
 
-            val result = loadPage(page = currentPage, perPage = PAGE_SIZE)
-            if (result.isEmpty()) _state.value = PagingState.REACHED_LAST_PAGE else {
+            val result = loadPage(page = currentPage, perPage = pagingSetup.pageSize)
+            withContext(Dispatchers.Main) {
                 _list.addAll(
                     result
                 )
-                _state.value = PagingState.IDLE
+                _state.value = if (result.isEmpty() || result.size < pagingSetup.pageSize)
+                    PagingState.REACHED_LAST_PAGE
+                else PagingState.IDLE
             }
 
         }
@@ -82,10 +86,14 @@ abstract class ComposePagingSource<T> {
     }
 
     fun refresh() {
-        _list.clear()
+        clearAll()
+        resetToInitial()
+        loadNextPage()
+    }
+
+    private fun resetToInitial() {
         _state.value = PagingState.IDLE
         currentPage = 0
-        loadNextPage()
     }
 
     fun updateItem(oldItem: T, newItem: T) {
@@ -99,6 +107,14 @@ abstract class ComposePagingSource<T> {
 
     fun addItem(item: T) {
         _list.add(item)
+    }
+
+    fun addHeader(item: T) {
+        _list.add(0, item)
+    }
+
+    private fun clearAll() {
+        _list.clear()
     }
 
     protected abstract suspend fun loadPage(page: Int, perPage: Int): List<T>
