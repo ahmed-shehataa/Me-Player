@@ -46,13 +46,23 @@ class MyPlayer(private val player: Player) : Player.Listener {
      * @param trackList The list of media items to play.
      */
     fun iniPlayer(trackList: List<TrackUIModel>, starterTrackPosition: Int) {
-        _trackList.clear()
-        _trackList.addAll(trackList)
-        val mediaItems = _trackList.map { it.toMediaItem() }
-        player.addListener(this)
-        player.setMediaItems(mediaItems, starterTrackPosition, 0)
-        player.prepare()
-        player.play()
+        val isListChanged = trackList.toMutableList() != _trackList
+        if (isListChanged) {
+            _trackList.clear()
+            _trackList.addAll(trackList)
+            val mediaItems = _trackList.map { it.toMediaItem() }
+            with(player) {
+                addListener(this@MyPlayer)
+                clearMediaItems()
+                setMediaItems(mediaItems, starterTrackPosition, 0)
+                prepare()
+                play()
+            }
+        } else {
+            // just change current track index
+            player.seekTo(starterTrackPosition, 0)
+            player.play()
+        }
     }
 
     private fun TrackUIModel.toMediaItem(): MediaItem {
