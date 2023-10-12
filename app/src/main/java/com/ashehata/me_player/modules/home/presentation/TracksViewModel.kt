@@ -62,18 +62,33 @@ class TracksViewModel @Inject constructor(
 
             is TracksEvent.ToggleTrackToFavourite -> {
                 launchCoroutine {
-                    val newTrack = event.trackUIModel.copy(isFav = event.trackUIModel.isFav.not())
-                    updateTrackUseCase.execute(newTrack.toDomain())
+                    val updatedTrack =
+                        event.trackUIModel.copy(isFav = event.trackUIModel.isFav.not())
+                    updateTrackUseCase.execute(updatedTrack.toDomain())
+
+                    // Update All tracks ui list
                     allTracksPagingCompose.updateItem(
                         oldItem = event.trackUIModel,
-                        newItem = newTrack
+                        newItem = updatedTrack
                     )
-                    if (newTrack.isFav) {
-                        favTracksPagingCompose.addItem(newTrack)
+
+                    // Update Most played tracks ui list
+                    mostPlayedTracksPagingCompose.updateItem(
+                        oldItem = event.trackUIModel,
+                        newItem = updatedTrack
+                    )
+
+                    // Update Fav tracks ui list
+                    if (updatedTrack.isFav) {
+                        favTracksPagingCompose.addItem(updatedTrack)
                     } else {
                         favTracksPagingCompose.removeItem(event.trackUIModel)
                     }
 
+                    // Update current playing track
+                    if (viewStates?.currentSelectedTrack?.value == event.trackUIModel) {
+                        viewStates?.currentSelectedTrack?.value = updatedTrack
+                    }
                 }
             }
 

@@ -119,7 +119,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
                 onPlayPauseToggle = onPlayPauseToggle,
                 isPlaying = isPlaying.value,
                 playbackState = playbackState.value,
-                onSeekToPosition = onSeekToPosition
+                onSeekToPosition = onSeekToPosition,
+                toggleTrackToFavourite = toggleTrackToFavourite
             )
         },
         sheetPeekHeight = bottomSheetHeight.value,

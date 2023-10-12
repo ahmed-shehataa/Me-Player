@@ -56,6 +56,7 @@ fun PlayerScreenBottomSheet(
     onPlayPauseToggle: () -> Unit,
     isPlaying: Boolean,
     playbackState: PlaybackState,
+    toggleTrackToFavourite: (TrackUIModel) -> Unit,
     onSeekToPosition: (Long) -> Unit,
 ) {
 
@@ -79,7 +80,8 @@ fun PlayerScreenBottomSheet(
             currentSelectedTrack,
             onPlayPauseToggle,
             isPlaying,
-            currentProgress
+            currentProgress,
+            toggleTrackToFavourite
         )
 
 
@@ -222,6 +224,7 @@ fun CollapsedItem(
     onPlayPauseToggle: () -> Unit,
     isPlaying: Boolean,
     currentProgress: Float,
+    toggleTrackToFavourite: (TrackUIModel) -> Unit
 ) {
 
     Column {
@@ -251,35 +254,39 @@ fun CollapsedItem(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            IconButton(onClick = {
-                onPlayPauseToggle()
-            }) {
-                Icon(
-                    modifier = Modifier.size(36.dp),
-                    imageVector = ImageVector.vectorResource(id = iconRes.value),
-                    contentDescription = null
+            currentSelectedTrack?.let {
+                IconButton(onClick = {
+                    onPlayPauseToggle()
+                }) {
+                    Icon(
+                        modifier = Modifier.size(36.dp),
+                        imageVector = ImageVector.vectorResource(id = iconRes.value),
+                        contentDescription = null
+                    )
+                }
+
+                Text(
+                    modifier = Modifier
+                        .weight(1f)
+                        .basicMarquee(),
+                    text = currentSelectedTrack.name,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.body1.copy(
+                        color = MaterialTheme.colors.onSurface,
+                    )
                 )
 
-            }
+                IconButton(onClick = {
+                    toggleTrackToFavourite(currentSelectedTrack)
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Favorite,
+                        contentDescription = null,
+                        tint = if (currentSelectedTrack.isFav) Color.Red else Color.White
+                    )
 
-            Text(
-                modifier = Modifier.weight(1f).basicMarquee(),
-                text = currentSelectedTrack?.name ?: "",
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = MaterialTheme.typography.body1.copy(
-                    color = MaterialTheme.colors.onSurface,
-                )
-            )
-
-
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Outlined.Favorite,
-                    contentDescription = null,
-                    tint = Color.Red
-                )
-
+                }
             }
 
         }
