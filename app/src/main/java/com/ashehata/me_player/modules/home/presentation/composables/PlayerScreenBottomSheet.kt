@@ -59,6 +59,8 @@ fun PlayerScreenBottomSheet(
     playbackState: PlaybackState,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
     onSeekToPosition: (Long) -> Unit,
+    onNextClicked: () -> Unit,
+    onPreviousClicked: () -> Unit,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -71,8 +73,10 @@ fun PlayerScreenBottomSheet(
 
         ControllerItem(
             Modifier.align(Alignment.Center),
+            playerState,
             onPlayPauseToggle,
-            playerState
+            onNextClicked,
+            onPreviousClicked
         )
 
         CollapsedItem(
@@ -142,8 +146,10 @@ fun WaveItem(
 @Composable
 fun ControllerItem(
     modifier: Modifier,
+    playerState: PlayerStates,
     onPlayPauseToggle: () -> Unit,
-    playerState: PlayerStates
+    onNextClicked: () -> Unit,
+    onPreviousClicked: () -> Unit,
 ) {
     Box(modifier = modifier
         .clickable(
@@ -167,7 +173,7 @@ fun ControllerItem(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 IconButton(
-                    onClick = { },
+                    onClick = { onPreviousClicked() },
                     Modifier
                         .clip(CircleShape)
                         .background(MaterialTheme.colors.primary)
@@ -195,7 +201,7 @@ fun ControllerItem(
 
                 }
                 IconButton(
-                    onClick = { },
+                    onClick = { onNextClicked() },
                     Modifier
                         .clip(CircleShape)
                         .background(MaterialTheme.colors.primary)

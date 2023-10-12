@@ -21,6 +21,9 @@ sealed class TracksEvent : BaseEvent {
     data class InitPlayer(val player: MyPlayer?) : TracksEvent()
     data class SeekToPosition(val position: Long) : TracksEvent()
     object PlayPauseToggle : TracksEvent()
+    object PlayNextTrack : TracksEvent()
+    object PlayPreviousTrack : TracksEvent()
+
     data class ChangeScreenMode(val tracksScreenMode: TracksScreenMode) : TracksEvent()
     object ClearAllFavourite : TracksEvent()
     object RefreshScreen : TracksEvent()

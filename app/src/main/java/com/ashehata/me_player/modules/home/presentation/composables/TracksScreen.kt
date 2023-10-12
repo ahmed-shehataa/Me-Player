@@ -78,6 +78,18 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
+    val onNextClicked: () -> Unit = remember {
+        {
+            viewModel.setEvent(TracksEvent.PlayNextTrack)
+        }
+    }
+
+    val onPreviousClicked: () -> Unit = remember {
+        {
+            viewModel.setEvent(TracksEvent.PlayPreviousTrack)
+        }
+    }
+
     val onPlayPauseToggle: () -> Unit = remember {
         {
             viewModel.setEvent(TracksEvent.PlayPauseToggle)
@@ -120,7 +132,9 @@ fun TracksScreen(viewModel: TracksViewModel) {
                 playerState = playerState.value,
                 playbackState = playbackState.value,
                 onSeekToPosition = onSeekToPosition,
-                toggleTrackToFavourite = toggleTrackToFavourite
+                toggleTrackToFavourite = toggleTrackToFavourite,
+                onNextClicked = onNextClicked,
+                onPreviousClicked = onPreviousClicked
             )
         },
         sheetPeekHeight = bottomSheetHeight.value,

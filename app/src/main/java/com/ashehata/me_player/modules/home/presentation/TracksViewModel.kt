@@ -130,6 +130,14 @@ class TracksViewModel @Inject constructor(
             is TracksEvent.SeekToPosition -> {
                 myPlayer?.seekToPosition(event.position)
             }
+
+            TracksEvent.PlayNextTrack -> {
+                myPlayer?.playNext()
+            }
+
+            TracksEvent.PlayPreviousTrack -> {
+                myPlayer?.playPrevious()
+            }
         }
     }
 

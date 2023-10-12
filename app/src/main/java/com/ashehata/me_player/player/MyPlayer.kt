@@ -50,10 +50,9 @@ class MyPlayer(private val player: Player) : Player.Listener {
         _trackList.addAll(trackList)
         val mediaItems = _trackList.map { it.toMediaItem() }
         player.addListener(this)
-        player.setMediaItems(mediaItems,starterTrackPosition, 0)
+        player.setMediaItems(mediaItems, starterTrackPosition, 0)
         player.prepare()
         player.play()
-
     }
 
     private fun TrackUIModel.toMediaItem(): MediaItem {
@@ -70,6 +69,20 @@ class MyPlayer(private val player: Player) : Player.Listener {
         if (player.playbackState == Player.STATE_IDLE) player.prepare()
         player.seekTo(index, 0)
         if (isTrackPlay) player.playWhenReady = true
+    }
+
+    /**
+     *
+     */
+
+    fun playNext() {
+        player.seekToNextMediaItem()
+        player.play()
+    }
+
+    fun playPrevious() {
+        player.seekToPreviousMediaItem()
+        player.play()
     }
 
     /**
