@@ -2,7 +2,6 @@ package com.ashehata.me_player.modules.home.presentation
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MediaItem
 import com.ashehata.me_player.amplitude.MyAmplitude
 import com.ashehata.me_player.base.BaseViewModel
 import com.ashehata.me_player.modules.home.domain.usecase.UpdateTrackUseCase
@@ -11,6 +10,7 @@ import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
 import com.ashehata.me_player.modules.home.presentation.mapper.toDomain
+import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.FavTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.MostPlayedTracksPagingCompose
@@ -40,7 +40,6 @@ class TracksViewModel @Inject constructor(
     override fun handleEvents(event: TracksEvent) {
         when (event) {
             is TracksEvent.ChangeScreenMode -> {
-                Log.i("ChangeScreenMode", "handleEvents: " + event.tracksScreenMode.name)
                 viewStates?.screenMode?.value = event.tracksScreenMode
             }
 
@@ -49,11 +48,15 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.OnTrackClicked -> {
-                viewStates?.currentSelectedTrack?.value = event.trackUIModel
-                val newItem = MediaItem.Builder()
-                    .setUri(event.trackUIModel.uri)
-                    .build()
-                myPlayer?.iniPlayer(listOf(newItem).toMutableList())
+                //viewStates?.currentSelectedTrack?.value = event.trackUIModel
+                val tracksToPlay = when (viewStates?.screenMode?.value) {
+                    TracksScreenMode.All -> allTracksPagingCompose.list
+                    TracksScreenMode.Favourite -> favTracksPagingCompose.list
+                    TracksScreenMode.MostPlayed -> mostPlayedTracksPagingCompose.list
+                    else -> emptyList()
+                }
+                val trackIndex = tracksToPlay.indexOf(event.trackUIModel)
+                myPlayer?.iniPlayer(tracksToPlay, trackIndex)
             }
 
             TracksEvent.RefreshScreen -> {
@@ -108,10 +111,13 @@ class TracksViewModel @Inject constructor(
                 launchCoroutine(Dispatchers.Main) {
                     myPlayer = event.player
                     myPlayer?.playerState?.collectLatest {
-                        Log.i("handleEvents: ", it.name)
+                        Log.i("playerState: ", it.toString())
                         updatePlaybackState(it)
-                        viewStates?.isPlaying?.value = it == PlayerStates.STATE_PLAYING
-
+                        viewStates?.playerState?.value = it
+                        if (viewStates?.playerState?.value is PlayerStates.Playing) {
+                            viewStates?.currentSelectedTrack?.value =
+                                (it as PlayerStates.Playing).currentTrack
+                        }
                     }
                 }
                 //listenToProgressUpdates()

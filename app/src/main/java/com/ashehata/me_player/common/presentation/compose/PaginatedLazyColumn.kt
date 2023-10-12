@@ -1,5 +1,6 @@
 package com.ashehata.me_player.common.presentation.compose
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,13 +42,15 @@ fun <T> PaginatedLazyColumn(
         EmptyListPlaceholder(
             Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()))
+                .verticalScroll(rememberScrollState())
+        )
     },
     errorPlaceHolder: @Composable () -> Unit = {
         ErrorPlaceholder(
             Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()))
+                .verticalScroll(rememberScrollState())
+        )
     },
     loadingPlaceHolder: @Composable () -> Unit = {
         Box(
@@ -80,9 +83,12 @@ fun <T> PaginatedLazyColumn(
     LaunchedEffect(key1 = currentVisibleItem.value) {
         // if reached to the end of current page, so load next one
         val index = currentVisibleItem.value ?: 0
-        if (index > lazyListState.layoutInfo.totalItemsCount - 4) {
-            composePagingSource.loadNextPage()
-        }
+        val itemIndexToLoad = lazyListState.layoutInfo.totalItemsCount - 4
+
+        if (itemIndexToLoad > 0)
+            if (index > (lazyListState.layoutInfo.totalItemsCount - 4)) {
+                composePagingSource.loadNextPage()
+            }
     }
 
     Box(
@@ -98,20 +104,20 @@ fun <T> PaginatedLazyColumn(
         } else if (composePagingSource.list.isEmpty() && pagingState == PagingState.REACHED_LAST_PAGE) {
             emptyPlaceHolder()
         } else {
-            LazyColumn(state = lazyListState, contentPadding = contentPadding) {
+            LazyColumn(
+                state = lazyListState,
+                contentPadding = contentPadding,
+                modifier = Modifier.animateContentSize()
+            ) {
 
                 items(composePagingSource.list) {
                     item(it)
                 }
 
-                if (pagingState == PagingState.LOADING_NEXT_PAGE) {
-                    item {
+                item {
+                    if (pagingState == PagingState.LOADING_NEXT_PAGE) {
                         loadingPlaceHolder()
-                    }
-                }
-
-                if (pagingState == PagingState.FAILURE_AT_NEXT) {
-                    item {
+                    } else if (pagingState == PagingState.FAILURE_AT_NEXT) {
                         ErrorPlaceholder()
                     }
                 }

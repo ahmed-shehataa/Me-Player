@@ -45,6 +45,7 @@ import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.player.PlaybackState
+import com.ashehata.me_player.player.PlayerStates
 import com.linc.audiowaveform.AudioWaveform
 import com.linc.audiowaveform.model.AmplitudeType
 import com.linc.audiowaveform.model.WaveformAlignment
@@ -54,7 +55,7 @@ fun PlayerScreenBottomSheet(
     onCollapsedItemClicked: () -> Unit,
     currentSelectedTrack: TrackUIModel?,
     onPlayPauseToggle: () -> Unit,
-    isPlaying: Boolean,
+    playerState: PlayerStates,
     playbackState: PlaybackState,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
     onSeekToPosition: (Long) -> Unit,
@@ -71,7 +72,7 @@ fun PlayerScreenBottomSheet(
         ControllerItem(
             Modifier.align(Alignment.Center),
             onPlayPauseToggle,
-            isPlaying
+            playerState
         )
 
         CollapsedItem(
@@ -79,7 +80,7 @@ fun PlayerScreenBottomSheet(
             onCollapsedItemClicked,
             currentSelectedTrack,
             onPlayPauseToggle,
-            isPlaying,
+            playerState,
             currentProgress,
             toggleTrackToFavourite
         )
@@ -142,7 +143,7 @@ fun WaveItem(
 fun ControllerItem(
     modifier: Modifier,
     onPlayPauseToggle: () -> Unit,
-    isPlaying: Boolean
+    playerState: PlayerStates
 ) {
     Box(modifier = modifier
         .clickable(
@@ -156,7 +157,7 @@ fun ControllerItem(
         .padding(horizontal = 20.dp)) {
 
         AnimatedVisibility(
-            visible = isPlaying.not(), Modifier.fillMaxSize(),
+            visible = (playerState is PlayerStates.Playing).not(), Modifier.fillMaxSize(),
             enter = scaleIn(),
             exit = scaleOut()
         ) {
@@ -222,16 +223,16 @@ fun CollapsedItem(
     onItemClicked: () -> Unit,
     currentSelectedTrack: TrackUIModel?,
     onPlayPauseToggle: () -> Unit,
-    isPlaying: Boolean,
+    playerState: PlayerStates,
     currentProgress: Float,
     toggleTrackToFavourite: (TrackUIModel) -> Unit
 ) {
 
     Column {
 
-        val iconRes = remember(isPlaying) {
+        val iconRes = remember(playerState) {
             derivedStateOf {
-                if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow
+                if (playerState is PlayerStates.Playing) R.drawable.ic_pause else R.drawable.ic_play_arrow
             }
         }
 

@@ -10,6 +10,7 @@ import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlaybackState
+import com.ashehata.me_player.player.PlayerStates
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
@@ -31,7 +32,7 @@ sealed class TracksState : BaseState {
 }
 
 data class TracksViewState(
-    val isPlaying: MutableState<Boolean> = mutableStateOf(false),
+    val playerState: MutableState<PlayerStates> = mutableStateOf(PlayerStates.Idel),
     val playbackState: MutableStateFlow<PlaybackState> = MutableStateFlow(PlaybackState(0L, 0L)),
     val currentSelectedTrack: MutableState<TrackUIModel?> = mutableStateOf(null),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),

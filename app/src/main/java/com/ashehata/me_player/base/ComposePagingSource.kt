@@ -8,10 +8,12 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.seconds
 
 abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = PagingSetup()) {
     companion object {
@@ -50,11 +52,10 @@ abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = Pag
     }
 
     fun loadNextPage(isRetry: Boolean = false) {
-        Log.i("loadNextPage", "out: " + _state.value.name)
         if (_state.value != PagingState.IDLE) return
 
         coroutineScope.launch {
-            // for testing purpose
+            // for testing exception purpose
             //if (currentPage == 2 ) throw IOException()
 
             if (isRetry.not())
@@ -64,8 +65,8 @@ abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = Pag
             _state.value =
                 if (currentPage == FIRST_PAGE_NUMBER) PagingState.LOADING_FIRST_PAGE else PagingState.LOADING_NEXT_PAGE
 
-            // for testing purpose
-            //delay(2.seconds)
+            // for testing loading purpose
+            //delay(5.seconds)
 
             val result = loadPage(page = currentPage, perPage = pagingSetup.pageSize)
             withContext(Dispatchers.Main) {

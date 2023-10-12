@@ -1,46 +1,49 @@
 package com.ashehata.me_player.player
 
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
+
 /**
  * An enumeration of the possible states for the player.
  */
-enum class PlayerStates {
+sealed class PlayerStates() {
     /**
      * State when the player is idle, not ready to play.
      */
-    STATE_IDLE,
+    object Idel : PlayerStates()
 
     /**
      * State when the player is ready to start playback.
      */
-    STATE_READY,
+    object Ready : PlayerStates()
 
     /**
      * State when the player is buffering content.
      */
-    STATE_BUFFERING,
+    object Buffering : PlayerStates()
 
     /**
      * State when the player has encountered an error.
      */
-    STATE_ERROR,
+    object Error : PlayerStates()
 
     /**
      * State when the playback has ended.
      */
-    STATE_END,
+    object End : PlayerStates()
 
     /**
      * State when the player is actively playing content.
      */
-    STATE_PLAYING,
+    data class Playing(val currentTrack: TrackUIModel) : PlayerStates()
 
     /**
      * State when the player has paused the playback.
      */
-    STATE_PAUSE,
+    object Pause : PlayerStates()
 
     /**
      * State when the player has moved to the next track.
      */
-    STATE_NEXT_TRACK
+    object NextTrack : PlayerStates()
+
 }

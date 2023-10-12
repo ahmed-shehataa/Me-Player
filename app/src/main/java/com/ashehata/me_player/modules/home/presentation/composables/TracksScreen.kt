@@ -48,8 +48,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
 
     val playbackState = viewStates.playbackState.collectAsState()
 
-    val isPlaying = remember {
-        viewStates.isPlaying
+    val playerState = remember {
+        viewStates.playerState
     }
 
     val screenMode = remember {
@@ -117,7 +117,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
                 },
                 currentSelectedTrack = currentSelectedTrack.value,
                 onPlayPauseToggle = onPlayPauseToggle,
-                isPlaying = isPlaying.value,
+                playerState = playerState.value,
                 playbackState = playbackState.value,
                 onSeekToPosition = onSeekToPosition,
                 toggleTrackToFavourite = toggleTrackToFavourite

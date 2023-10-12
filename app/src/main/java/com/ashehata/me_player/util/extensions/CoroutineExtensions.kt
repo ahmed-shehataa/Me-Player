@@ -27,5 +27,5 @@ fun CoroutineScope.launchPlaybackStateJob(
         )
         delay(delayToUpdate)
 
-    } while (state == PlayerStates.STATE_PLAYING && this.isActive)
+    } while (state is PlayerStates.Playing && this.isActive)
 }
