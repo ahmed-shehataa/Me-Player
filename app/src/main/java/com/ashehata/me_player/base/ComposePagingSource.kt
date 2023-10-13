@@ -8,12 +8,10 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Duration.Companion.seconds
 
 abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = PagingSetup()) {
     companion object {
@@ -116,6 +114,8 @@ abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = Pag
     private fun clearAll() {
         _list.clear()
     }
+
+    fun size() = _list.size
 
     protected abstract suspend fun loadPage(page: Int, perPage: Int): List<T>
 }

@@ -1,13 +1,15 @@
 package com.ashehata.me_player.modules.home.presentation.composables
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.EaseOutSine
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
@@ -15,6 +17,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,33 +31,29 @@ import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun TracksScreen(viewModel: TracksViewModel) {
 
+    /**
+     * States
+     */
     val scope = rememberCoroutineScope()
 
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-        bottomSheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed)
-    )
+    val bottomSheetScaffoldState =
+        rememberBottomSheetScaffoldState(bottomSheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed))
 
-    val viewStates = remember {
-        viewModel.viewStates ?: TracksViewState()
-    }
+    val pagerState = rememberPagerState()
 
-    val currentSelectedTrack = remember {
-        viewStates.currentSelectedTrack
-    }
+    val viewStates = remember { viewModel.viewStates ?: TracksViewState() }
+
+    val currentSelectedTrack = remember { viewStates.currentSelectedTrack }
 
     val playbackState = viewStates.playbackState.collectAsState()
 
-    val playerState = remember {
-        viewStates.playerState
-    }
+    val playerState = remember { viewStates.playerState }
 
-    val screenMode = remember {
-        viewStates.screenMode
-    }
+    val screenMode = remember { viewStates.screenMode }
 
     val bottomSheetHeight =
         animateDpAsState(
@@ -64,16 +63,18 @@ fun TracksScreen(viewModel: TracksViewModel) {
             )
         )
 
-
-    val onTrackClicked: (TrackUIModel) -> Unit = remember {
-        {
-            viewModel.setEvent(TracksEvent.OnTrackClicked(it))
+    /**
+     * Actions
+     */
+    val onTrackClicked: (TrackUIModel, Int) -> Unit = remember {
+        { track, index ->
+            viewModel.setEvent(TracksEvent.OnTrackClicked(track))
+            scope.launch { pagerState.scrollToPage(index) }
         }
     }
 
     val toggleTrackToFavourite: (TrackUIModel) -> Unit = remember {
         {
-            Log.i("toggleTrackToFavourite", "TracksScreen: ")
             viewModel.setEvent(TracksEvent.ToggleTrackToFavourite(it))
         }
     }
@@ -81,12 +82,20 @@ fun TracksScreen(viewModel: TracksViewModel) {
     val onNextClicked: () -> Unit = remember {
         {
             viewModel.setEvent(TracksEvent.PlayNextTrack)
+            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
         }
     }
 
     val onPreviousClicked: () -> Unit = remember {
         {
             viewModel.setEvent(TracksEvent.PlayPreviousTrack)
+            scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+        }
+    }
+
+    val onPlayTrackAtPosition: (Int) -> Unit = remember {
+        {
+            viewModel.setEvent(TracksEvent.PlayTrackAtPosition(it))
         }
     }
 
@@ -108,6 +117,14 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
+    /**
+     * Play current active page track
+     */
+    LaunchedEffect(key1 = pagerState.isScrollInProgress) {
+        if (pagerState.isScrollInProgress.not())
+            onPlayTrackAtPosition(pagerState.currentPage)
+    }
+
     BackHandler(enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded) {
         scope.launch {
             bottomSheetScaffoldState.bottomSheetState.collapse()
@@ -121,21 +138,31 @@ fun TracksScreen(viewModel: TracksViewModel) {
             .navigationBarsPadding(),
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            PlayerScreenBottomSheet(
-                onCollapsedItemClicked = {
-                    scope.launch {
-                        bottomSheetScaffoldState.bottomSheetState.expand()
-                    }
-                },
-                currentSelectedTrack = currentSelectedTrack.value,
-                onPlayPauseToggle = onPlayPauseToggle,
-                playerState = playerState.value,
-                playbackState = playbackState.value,
-                onSeekToPosition = onSeekToPosition,
-                toggleTrackToFavourite = toggleTrackToFavourite,
-                onNextClicked = onNextClicked,
-                onPreviousClicked = onPreviousClicked
-            )
+            // TODO change pageCount
+            HorizontalPager(
+                pageCount = viewModel.allTracksPagingCompose.size(),
+                state = pagerState,
+            ) {
+                val track = viewModel.allTracksPagingCompose.list[it]
+                PlayerScreenBottomSheet(
+                    onCollapsedItemClicked = {
+                        scope.launch {
+                            bottomSheetScaffoldState.bottomSheetState.expand()
+                        }
+                    },
+                    track = track,
+                    isSelected = currentSelectedTrack.value == track,
+                    onPlayPauseToggle = onPlayPauseToggle,
+                    playerState = playerState.value,
+                    playbackState = playbackState.value,
+                    onSeekToPosition = onSeekToPosition,
+                    toggleTrackToFavourite = toggleTrackToFavourite,
+                    onNextClicked = onNextClicked,
+                    onPreviousClicked = onPreviousClicked
+                )
+
+            }
+
         },
         sheetPeekHeight = bottomSheetHeight.value,
         backgroundColor = MaterialTheme.colors.primary,
@@ -153,5 +180,6 @@ fun TracksScreen(viewModel: TracksViewModel) {
             bottomPadding = it.calculateBottomPadding()
         )
     }
+
 
 }

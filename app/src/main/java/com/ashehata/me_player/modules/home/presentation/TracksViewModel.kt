@@ -138,6 +138,10 @@ class TracksViewModel @Inject constructor(
             TracksEvent.PlayPreviousTrack -> {
                 myPlayer?.playPrevious()
             }
+
+            is TracksEvent.PlayTrackAtPosition -> {
+                myPlayer?.playTrack(event.position)
+            }
         }
     }
 

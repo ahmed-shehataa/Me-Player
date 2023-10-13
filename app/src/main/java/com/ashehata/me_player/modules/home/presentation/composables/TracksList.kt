@@ -19,7 +19,7 @@ import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 fun TracksList(
     tracksPagingData: ComposePagingSource<TrackUIModel>,
     currentSelectedTrack: TrackUIModel?,
-    onTrackClicked: (TrackUIModel) -> Unit,
+    onTrackClicked: (TrackUIModel, Int) -> Unit,
     listState: LazyListState,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
 ) {
@@ -33,7 +33,7 @@ fun TracksList(
                 trackUIModel = track,
                 isSelected = track == currentSelectedTrack,
                 onTrackClicked = {
-                    onTrackClicked(track)
+                    onTrackClicked(track, tracksPagingData.list.indexOf(track))
                 },
                 toggleTrackToFavourite = toggleTrackToFavourite
             )

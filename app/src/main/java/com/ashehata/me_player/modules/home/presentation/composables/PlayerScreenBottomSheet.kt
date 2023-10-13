@@ -53,7 +53,8 @@ import com.linc.audiowaveform.model.WaveformAlignment
 @Composable
 fun PlayerScreenBottomSheet(
     onCollapsedItemClicked: () -> Unit,
-    currentSelectedTrack: TrackUIModel?,
+    track: TrackUIModel?,
+    isSelected: Boolean,
     onPlayPauseToggle: () -> Unit,
     playerState: PlayerStates,
     playbackState: PlaybackState,
@@ -76,17 +77,18 @@ fun PlayerScreenBottomSheet(
             playerState,
             onPlayPauseToggle,
             onNextClicked,
-            onPreviousClicked
+            onPreviousClicked,
         )
 
         CollapsedItem(
             Modifier.align(Alignment.TopCenter),
             onCollapsedItemClicked,
-            currentSelectedTrack,
+            track,
             onPlayPauseToggle,
             playerState,
             currentProgress,
-            toggleTrackToFavourite
+            toggleTrackToFavourite,
+            isSelected
         )
 
 
@@ -231,10 +233,15 @@ fun CollapsedItem(
     onPlayPauseToggle: () -> Unit,
     playerState: PlayerStates,
     currentProgress: Float,
-    toggleTrackToFavourite: (TrackUIModel) -> Unit
+    toggleTrackToFavourite: (TrackUIModel) -> Unit,
+    isSelected: Boolean
 ) {
 
     Column {
+
+        val progressState = remember(isSelected, currentProgress) {
+            derivedStateOf { if (isSelected) currentProgress else 0f }
+        }
 
         val iconRes = remember(playerState) {
             derivedStateOf {
@@ -243,7 +250,7 @@ fun CollapsedItem(
         }
 
         LinearProgressIndicator(
-            progress = currentProgress, color = Color.Red, modifier = Modifier
+            progress = progressState.value, color = Color.Red, modifier = Modifier
                 .fillMaxWidth()
                 .height(2.dp),
             backgroundColor = Color.Unspecified

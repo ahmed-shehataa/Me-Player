@@ -49,7 +49,7 @@ fun TracksScreenContent(
     allTracksPagingData: AllTracksPagingCompose,
     favouriteTracksPagingData: FavTracksPagingCompose,
     mostPlayedTracksPagingData: MostPlayedTracksPagingCompose,
-    onTrackClicked: (TrackUIModel) -> Unit,
+    onTrackClicked: (TrackUIModel, Int) -> Unit,
     currentSelectedTrack: TrackUIModel?,
     screenMode: TracksScreenMode,
     onChangeScreenMode: (TracksScreenMode) -> Unit,

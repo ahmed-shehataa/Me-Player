@@ -23,7 +23,7 @@ sealed class TracksEvent : BaseEvent {
     object PlayPauseToggle : TracksEvent()
     object PlayNextTrack : TracksEvent()
     object PlayPreviousTrack : TracksEvent()
-
+    data class PlayTrackAtPosition(val position: Int) : TracksEvent()
     data class ChangeScreenMode(val tracksScreenMode: TracksScreenMode) : TracksEvent()
     object ClearAllFavourite : TracksEvent()
     object RefreshScreen : TracksEvent()

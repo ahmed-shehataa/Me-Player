@@ -95,6 +95,11 @@ class MyPlayer(private val player: Player) : Player.Listener {
         player.play()
     }
 
+    fun playTrack(position: Int) {
+        player.seekTo(position, 0)
+        player.play()
+    }
+
     /**
      * Toggles the playback state between playing and paused.
      */
