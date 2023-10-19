@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 
 sealed class TracksEvent : BaseEvent {
-    data class OnTrackClicked(val trackUIModel: TrackUIModel) : TracksEvent()
+    data class OnTrackClicked(val trackUIModel: TrackUIModel, val position: Int) : TracksEvent()
     data class ToggleTrackToFavourite(val trackUIModel: TrackUIModel) : TracksEvent()
     data class UpdateTracks(val tracks: List<TrackDomainModel>) : TracksEvent()
     data class InitPlayer(val player: MyPlayer?) : TracksEvent()
@@ -26,7 +26,6 @@ sealed class TracksEvent : BaseEvent {
     data class PlayTrackAtPosition(val position: Int) : TracksEvent()
     data class ChangeScreenMode(val tracksScreenMode: TracksScreenMode) : TracksEvent()
     object ClearAllFavourite : TracksEvent()
-    object RefreshScreen : TracksEvent()
 }
 
 sealed class TracksState : BaseState {
@@ -39,4 +38,5 @@ data class TracksViewState(
     val playbackState: MutableStateFlow<PlaybackState> = MutableStateFlow(PlaybackState(0L, 0L)),
     val currentSelectedTrack: MutableState<TrackUIModel?> = mutableStateOf(null),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),
+    val bottomSheetMode: MutableState<TracksScreenMode> = mutableStateOf(screenMode.value),
 ) : BaseViewState()

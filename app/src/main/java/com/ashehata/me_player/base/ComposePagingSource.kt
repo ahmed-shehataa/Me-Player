@@ -4,14 +4,17 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.ashehata.me_player.common.models.PagingSetup
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.seconds
 
 abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = PagingSetup()) {
     companion object {
@@ -44,6 +47,7 @@ abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = Pag
     }
     private val coroutineScope = CoroutineScope(Dispatchers.IO + exceptionHandler + SupervisorJob())
 
+    var onNewPageLoaded: (List<T>) -> Unit = {}
 
     init {
         loadNextPage()
@@ -73,7 +77,10 @@ abstract class ComposePagingSource<T>(private val pagingSetup: PagingSetup = Pag
                 )
                 _state.value = if (result.isEmpty() || result.size < pagingSetup.pageSize)
                     PagingState.REACHED_LAST_PAGE
-                else PagingState.IDLE
+                else {
+                    onNewPageLoaded(result)
+                    PagingState.IDLE
+                }
             }
 
         }

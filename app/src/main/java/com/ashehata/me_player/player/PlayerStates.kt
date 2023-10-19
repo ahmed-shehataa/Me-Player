@@ -34,7 +34,7 @@ sealed class PlayerStates() {
     /**
      * State when the player is actively playing content.
      */
-    data class Playing(val currentTrack: TrackUIModel) : PlayerStates()
+    data class Playing(val currentTrackIndex: Int) : PlayerStates()
 
     /**
      * State when the player has paused the playback.

@@ -10,12 +10,14 @@ import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
 import com.ashehata.me_player.modules.home.presentation.mapper.toDomain
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.FavTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.MostPlayedTracksPagingCompose
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlayerStates
+import com.ashehata.me_player.streamer.Streamer
 import com.ashehata.me_player.util.extensions.launchPlaybackStateJob
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -33,13 +35,27 @@ class TracksViewModel @Inject constructor(
     val mostPlayedTracksPagingCompose: MostPlayedTracksPagingCompose,
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
-    private var myPlayer: MyPlayer? = null
     private var playbackStateJob: Job? = null
+    private lateinit var streamer: Streamer<TrackUIModel>
+    /* private var notifyPlayerWithNewList: (List<TrackUIModel>) -> Unit = {
+         myPlayer?.appendList(it)
+     }*/
 
+    init {
+        /* // Notify the player after loading next page
+         listOf(
+             allTracksPagingCompose,
+             favTracksPagingCompose,
+             mostPlayedTracksPagingCompose
+         ).forEach {
+             it.onNewPageLoaded = notifyPlayerWithNewList
+         }*/
+    }
 
     override fun handleEvents(event: TracksEvent) {
         when (event) {
             is TracksEvent.ChangeScreenMode -> {
+                Log.i("ChangeScreenMode", "handleEvents: " + event.tracksScreenMode.name)
                 viewStates?.screenMode?.value = event.tracksScreenMode
             }
 
@@ -48,109 +64,147 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.OnTrackClicked -> {
-                //viewStates?.currentSelectedTrack?.value = event.trackUIModel
-                val tracksToPlay = when (viewStates?.screenMode?.value) {
-                    TracksScreenMode.All -> allTracksPagingCompose.list
-                    TracksScreenMode.Favourite -> favTracksPagingCompose.list
-                    TracksScreenMode.MostPlayed -> mostPlayedTracksPagingCompose.list
-                    else -> emptyList()
+               /* Log.i("handleEvents: ", "OnTrackClicked")
+
+                // change bottomSheetMode to display the correct playing -> paging source data
+                if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
+                    viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
                 }
-                val trackIndex = tracksToPlay.indexOf(event.trackUIModel)
-                myPlayer?.iniPlayer(tracksToPlay, trackIndex)
-            }
-
-            TracksEvent.RefreshScreen -> {
-
+                streamer.playTrack(
+                    tracksScreenMode = getCurrentScreenMode(),
+                    trackPositionInList = event.position
+                )*/
             }
 
             is TracksEvent.ToggleTrackToFavourite -> {
                 launchCoroutine {
-                    val updatedTrack =
-                        event.trackUIModel.copy(isFav = event.trackUIModel.isFav.not())
-                    updateTrackUseCase.execute(updatedTrack.toDomain())
-
-                    // Update All tracks ui list
-                    allTracksPagingCompose.updateItem(
-                        oldItem = event.trackUIModel,
-                        newItem = updatedTrack
-                    )
-
-                    // Update Most played tracks ui list
-                    mostPlayedTracksPagingCompose.updateItem(
-                        oldItem = event.trackUIModel,
-                        newItem = updatedTrack
-                    )
-
-                    // Update Fav tracks ui list
-                    if (updatedTrack.isFav) {
-                        favTracksPagingCompose.addItem(updatedTrack)
-                    } else {
-                        favTracksPagingCompose.removeItem(event.trackUIModel)
-                    }
-
-                    // Update current playing track
-                    if (viewStates?.currentSelectedTrack?.value == event.trackUIModel) {
-                        viewStates?.currentSelectedTrack?.value = updatedTrack
-                    }
+                    toggleToFav(event.trackUIModel)
                 }
             }
 
             is TracksEvent.UpdateTracks -> {
-                // TODO uncomment
+                // TODO UpdateTracks if needed
                 launchCoroutine(Dispatchers.IO) {
-                    updateTracksListUseCase.execute(
-                        event.tracks/*.map {
-                        it.copy(wavesList = myAmplitude.audioToWave(it.uri))
-                    }*/
-                    )
-
+                    updateTracksListUseCase.execute(event.tracks)
                 }
             }
 
             is TracksEvent.InitPlayer -> {
-                launchCoroutine(Dispatchers.Main) {
-                    myPlayer = event.player
-                    myPlayer?.playerState?.collectLatest {
-                        Log.i("playerState: ", it.toString())
-                        updatePlaybackState(it)
-                        viewStates?.playerState?.value = it
-                        if (viewStates?.playerState?.value is PlayerStates.Playing) {
-                            viewStates?.currentSelectedTrack?.value =
-                                (it as PlayerStates.Playing).currentTrack
-                        }
-                    }
+                event.player?.let {
+                    initStreamer(event.player)
                 }
-                //listenToProgressUpdates()
             }
 
             TracksEvent.PlayPauseToggle -> {
-                myPlayer?.playPause()
+                streamer.togglePlay()
             }
 
             is TracksEvent.SeekToPosition -> {
-                myPlayer?.seekToPosition(event.position)
+                streamer.seekToPosition(event.position)
             }
 
             TracksEvent.PlayNextTrack -> {
-                myPlayer?.playNext()
+                streamer.playNext()
             }
 
             TracksEvent.PlayPreviousTrack -> {
-                myPlayer?.playPrevious()
+                streamer.playPrevious()
             }
 
             is TracksEvent.PlayTrackAtPosition -> {
-                myPlayer?.playTrack(event.position)
+                Log.i("handleEvents: ", "PlayTrackAtPosition")
+                // change bottomSheetMode to display the correct playing -> paging source data
+                if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
+                    viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
+                }
+                streamer.playTrack(
+                    tracksScreenMode = getCurrentScreenMode(),
+                    trackPositionInList = event.position
+                )
             }
+        }
+    }
+
+    private fun initStreamer(player: MyPlayer) {
+        launchCoroutine(Dispatchers.Main) {
+
+            streamer = Streamer(
+                currentScreenMode = getCurrentScreenMode(),
+                player = player,
+                allTracksPagingCompose = allTracksPagingCompose,
+                favTracksPagingCompose = favTracksPagingCompose,
+                mostPlayedTracksPagingCompose = mostPlayedTracksPagingCompose
+            )
+
+            streamer.streamerState.collectLatest {
+                Log.i("playerState: ", it.toString())
+                updatePlaybackState(it)
+                viewStates?.playerState?.value = it
+                if (viewStates?.playerState?.value is PlayerStates.Playing) {
+                    val index = (it as PlayerStates.Playing).currentTrackIndex
+                    viewStates?.currentSelectedTrack?.value =
+                        getCurrentPlayedTrack(index)
+                }
+            }
+        }
+    }
+
+    private fun getCurrentPlayedTrack(index: Int): TrackUIModel? {
+        return when (viewStates?.screenMode?.value) {
+            TracksScreenMode.All -> {
+                allTracksPagingCompose.list[index]
+            }
+
+            TracksScreenMode.Favourite -> {
+                favTracksPagingCompose.list[index]
+            }
+
+            TracksScreenMode.MostPlayed -> {
+                mostPlayedTracksPagingCompose.list[index]
+            }
+
+            null -> {
+                null
+            }
+        }
+    }
+
+    private fun getCurrentScreenMode(): TracksScreenMode {
+        return viewStates?.screenMode?.value ?: TracksScreenMode.All
+    }
+
+    private suspend fun toggleToFav(trackUIModel: TrackUIModel) {
+        val updatedTrack = trackUIModel.copy(isFav = trackUIModel.isFav.not())
+        updateTrackUseCase.execute(updatedTrack.toDomain())
+
+        // Update All tracks ui list
+        allTracksPagingCompose.updateItem(
+            oldItem = trackUIModel,
+            newItem = updatedTrack
+        )
+
+        // Update Most played tracks ui list
+        mostPlayedTracksPagingCompose.updateItem(
+            oldItem = trackUIModel,
+            newItem = updatedTrack
+        )
+
+        // Update Fav tracks ui list
+        if (updatedTrack.isFav) {
+            favTracksPagingCompose.addItem(updatedTrack)
+        } else {
+            favTracksPagingCompose.removeItem(trackUIModel)
+        }
+
+        // Update current playing track
+        if (viewStates?.currentSelectedTrack?.value == trackUIModel) {
+            viewStates?.currentSelectedTrack?.value = updatedTrack
         }
     }
 
     private fun updatePlaybackState(state: PlayerStates) {
         playbackStateJob?.cancel()
-        myPlayer?.let {
-            playbackStateJob =
-                viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, it)
-        }
+        playbackStateJob = viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, streamer)
     }
 
     override fun createInitialViewState(): TracksViewState {
@@ -159,6 +213,6 @@ class TracksViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        myPlayer?.releasePlayer()
+        streamer.release()
     }
 }

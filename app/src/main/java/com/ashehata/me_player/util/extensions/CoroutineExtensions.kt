@@ -1,8 +1,10 @@
 package com.ashehata.me_player.util.extensions
 
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlaybackState
 import com.ashehata.me_player.player.PlayerStates
+import com.ashehata.me_player.streamer.Streamer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,14 +17,14 @@ import kotlin.time.Duration.Companion.milliseconds
 fun CoroutineScope.launchPlaybackStateJob(
     playbackStateFlow: MutableStateFlow<PlaybackState>?,
     state: PlayerStates,
-    myPlayer: MyPlayer,
+    streamer: Streamer<TrackUIModel>,
     delayToUpdate: Duration = 50.milliseconds
 ) = launch {
     do {
         playbackStateFlow?.emit(
             PlaybackState(
-                currentPlaybackPosition = myPlayer.currentPlaybackPosition,
-                currentTrackDuration = myPlayer.currentTrackDuration
+                currentPlaybackPosition = streamer.getCurrentPlaybackPosition(),
+                currentTrackDuration = streamer.getCurrentTrackDuration()
             )
         )
         delay(delayToUpdate)

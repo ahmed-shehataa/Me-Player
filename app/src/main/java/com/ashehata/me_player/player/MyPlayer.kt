@@ -1,9 +1,9 @@
 package com.ashehata.me_player.player
 
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
-import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.player.PlayerStates.End
 import com.ashehata.me_player.player.PlayerStates.Ready
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,50 +35,11 @@ class MyPlayer(private val player: Player) : Player.Listener {
     val currentTrackDuration: Long
         get() = if (player.duration > 0) player.duration else 0L
 
-    /**
-     *
-     */
-    private val _trackList: MutableList<TrackUIModel> = mutableListOf()
-
-    /**
-     * Initializes the player with a list of media items.
-     *
-     * @param trackList The list of media items to play.
-     */
-    fun iniPlayer(trackList: List<TrackUIModel>, starterTrackPosition: Int) {
-        val isListChanged = trackList.toMutableList() != _trackList
-        if (isListChanged) {
-            _trackList.clear()
-            _trackList.addAll(trackList)
-            val mediaItems = _trackList.map { it.toMediaItem() }
-            with(player) {
-                addListener(this@MyPlayer)
-                clearMediaItems()
-                setMediaItems(mediaItems, starterTrackPosition, 0)
-                prepare()
-                play()
-            }
-        } else {
-            // just change current track index
-            player.seekTo(starterTrackPosition, 0)
-            player.play()
+    fun init() {
+        with(player) {
+            addListener(this@MyPlayer)
+            //clearMediaItems()
         }
-    }
-
-    private fun TrackUIModel.toMediaItem(): MediaItem {
-        return MediaItem.Builder().setUri(this.uri).build()
-    }
-
-    /**
-     * Sets up the player to start playback of the track at the specified index.
-     *
-     * @param index The index of the track in the playlist.
-     * @param isTrackPlay If true, playback will start immediately.
-     */
-    fun setUpTrack(index: Int, isTrackPlay: Boolean) {
-        if (player.playbackState == Player.STATE_IDLE) player.prepare()
-        player.seekTo(index, 0)
-        if (isTrackPlay) player.playWhenReady = true
     }
 
     /**
@@ -97,6 +58,22 @@ class MyPlayer(private val player: Player) : Player.Listener {
 
     fun playTrack(position: Int) {
         player.seekTo(position, 0)
+        player.play()
+    }
+
+    fun setMediaItems(mediaItems: List<MediaItem>, startIndex: Int, startPositionMs: Long) {
+        player.setMediaItems(mediaItems, startIndex, startPositionMs)
+    }
+
+    fun clearMediaItems() {
+        player.clearMediaItems()
+    }
+
+    fun prepare() {
+        player.prepare()
+    }
+
+    fun play() {
         player.play()
     }
 
@@ -143,8 +120,7 @@ class MyPlayer(private val player: Player) : Player.Listener {
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
         if (player.playbackState == Player.STATE_READY) {
             if (playWhenReady) {
-                val currentTrack = _trackList[player.currentPeriodIndex]
-                playerState.tryEmit(PlayerStates.Playing(currentTrack))
+                playerState.tryEmit(PlayerStates.Playing(player.currentMediaItemIndex))
             } else {
                 playerState.tryEmit(PlayerStates.Pause)
             }
@@ -158,10 +134,10 @@ class MyPlayer(private val player: Player) : Player.Listener {
      */
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
         super.onMediaItemTransition(mediaItem, reason)
+        Log.i("onMediaItemTransition: " , reason.toString())
         if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
             playerState.tryEmit(PlayerStates.NextTrack)
-            val currentTrack = _trackList[player.currentPeriodIndex]
-            playerState.tryEmit(PlayerStates.Playing(currentTrack))
+            playerState.tryEmit(PlayerStates.Playing(player.currentMediaItemIndex))
         }
     }
 
@@ -182,8 +158,7 @@ class MyPlayer(private val player: Player) : Player.Listener {
             Player.STATE_READY -> {
                 playerState.tryEmit(Ready)
                 if (player.playWhenReady) {
-                    val currentTrack = _trackList[player.currentPeriodIndex]
-                    playerState.tryEmit(PlayerStates.Playing(currentTrack))
+                    playerState.tryEmit(PlayerStates.Playing(player.currentMediaItemIndex))
                 } else {
                     playerState.tryEmit(PlayerStates.Pause)
                 }

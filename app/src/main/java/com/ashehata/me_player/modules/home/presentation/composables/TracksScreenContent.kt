@@ -22,10 +22,12 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -40,6 +42,7 @@ import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.FavTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.MostPlayedTracksPagingCompose
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 
@@ -78,6 +81,13 @@ fun TracksScreenContent(
 
                 else -> false
             }
+        }
+    }
+
+    // to detect when page changed by scrolling (more efficient)
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect { page ->
+            onChangeScreenMode(TracksScreenMode.values()[page])
         }
     }
 

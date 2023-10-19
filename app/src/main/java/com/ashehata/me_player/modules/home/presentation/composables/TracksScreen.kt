@@ -1,5 +1,6 @@
 package com.ashehata.me_player.modules.home.presentation.composables
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.EaseOutSine
 import androidx.compose.animation.core.animateDpAsState
@@ -8,7 +9,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
@@ -17,12 +17,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ashehata.me_player.common.presentation.compose.PaginatedHorizontalPager
 import com.ashehata.me_player.modules.home.presentation.TracksViewModel
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
@@ -55,6 +56,19 @@ fun TracksScreen(viewModel: TracksViewModel) {
 
     val screenMode = remember { viewStates.screenMode }
 
+    val bottomSheetMode = remember { viewStates.bottomSheetMode }
+
+    val bottomSheetPagingSource = remember(bottomSheetMode.value) {
+        derivedStateOf {
+            Log.i("bottomSheetPagingSource", "TracksScreen: " + bottomSheetMode.value)
+            when (bottomSheetMode.value) {
+                TracksScreenMode.All -> viewModel.allTracksPagingCompose
+                TracksScreenMode.Favourite -> viewModel.favTracksPagingCompose
+                TracksScreenMode.MostPlayed -> viewModel.mostPlayedTracksPagingCompose
+            }
+        }
+    }
+
     val bottomSheetHeight =
         animateDpAsState(
             targetValue = if (currentSelectedTrack.value == null) 0.dp else 68.dp,
@@ -68,8 +82,10 @@ fun TracksScreen(viewModel: TracksViewModel) {
      */
     val onTrackClicked: (TrackUIModel, Int) -> Unit = remember {
         { track, index ->
-            viewModel.setEvent(TracksEvent.OnTrackClicked(track))
-            scope.launch { pagerState.scrollToPage(index) }
+            if (currentSelectedTrack.value == null)
+                currentSelectedTrack.value = TrackUIModel()
+            else
+                scope.launch { pagerState.scrollToPage(index) }
         }
     }
 
@@ -117,14 +133,6 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
-    /**
-     * Play current active page track
-     */
-    LaunchedEffect(key1 = pagerState.isScrollInProgress) {
-        if (pagerState.isScrollInProgress.not())
-            onPlayTrackAtPosition(pagerState.currentPage)
-    }
-
     BackHandler(enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded) {
         scope.launch {
             bottomSheetScaffoldState.bottomSheetState.collapse()
@@ -138,31 +146,31 @@ fun TracksScreen(viewModel: TracksViewModel) {
             .navigationBarsPadding(),
         scaffoldState = bottomSheetScaffoldState,
         sheetContent = {
-            // TODO change pageCount
-            HorizontalPager(
-                pageCount = viewModel.allTracksPagingCompose.size(),
-                state = pagerState,
-            ) {
-                val track = viewModel.allTracksPagingCompose.list[it]
-                PlayerScreenBottomSheet(
-                    onCollapsedItemClicked = {
-                        scope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.expand()
-                        }
-                    },
-                    track = track,
-                    isSelected = currentSelectedTrack.value == track,
-                    onPlayPauseToggle = onPlayPauseToggle,
-                    playerState = playerState.value,
-                    playbackState = playbackState.value,
-                    onSeekToPosition = onSeekToPosition,
-                    toggleTrackToFavourite = toggleTrackToFavourite,
-                    onNextClicked = onNextClicked,
-                    onPreviousClicked = onPreviousClicked
-                )
-
-            }
-
+            if (currentSelectedTrack.value != null)
+                PaginatedHorizontalPager(
+                    composePagingSource = bottomSheetPagingSource.value,
+                    state = pagerState,
+                    onCurrentPageChanged = {
+                        onPlayTrackAtPosition(it)
+                    }
+                ) {
+                    PlayerScreenBottomSheet(
+                        onCollapsedItemClicked = {
+                            scope.launch {
+                                bottomSheetScaffoldState.bottomSheetState.expand()
+                            }
+                        },
+                        track = it,
+                        isSelected = currentSelectedTrack.value == it,
+                        onPlayPauseToggle = onPlayPauseToggle,
+                        playerState = playerState.value,
+                        playbackState = playbackState.value,
+                        onSeekToPosition = onSeekToPosition,
+                        toggleTrackToFavourite = toggleTrackToFavourite,
+                        onNextClicked = onNextClicked,
+                        onPreviousClicked = onPreviousClicked
+                    )
+                }
         },
         sheetPeekHeight = bottomSheetHeight.value,
         backgroundColor = MaterialTheme.colors.primary,
