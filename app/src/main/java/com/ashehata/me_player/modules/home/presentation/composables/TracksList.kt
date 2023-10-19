@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.base.ComposePagingSource
+import com.ashehata.me_player.common.models.PaginatedItem
 import com.ashehata.me_player.common.presentation.compose.PaginatedLazyColumn
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 
@@ -25,12 +26,12 @@ fun TracksList(
 ) {
 
     PaginatedLazyColumn(
-        composePagingSource = tracksPagingData,
+        composePagingSource = tracksPagingData as ComposePagingSource<PaginatedItem>,
         lazyListState = listState,
         contentPadding = PaddingValues(vertical = 20.dp),
         item = { track ->
             TrackItem(
-                trackUIModel = track,
+                trackUIModel = track as TrackUIModel,
                 isSelected = track == currentSelectedTrack,
                 onTrackClicked = {
                     onTrackClicked(track, tracksPagingData.list.indexOf(track))

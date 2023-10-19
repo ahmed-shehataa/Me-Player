@@ -1,6 +1,7 @@
 package com.ashehata.me_player.modules.home.presentation.model
 
 import androidx.media3.common.MediaItem
+import com.ashehata.me_player.common.models.PaginatedItem
 
 data class TrackUIModel(
     val id: Long? = null,
@@ -12,4 +13,8 @@ data class TrackUIModel(
     val isFav: Boolean = false,
     val playingCount: Int = -1,
     val mediaItem: MediaItem = MediaItem.Builder().setUri(uri).build()
-)
+) : PaginatedItem {
+    override fun getId(): Int {
+       return id?.toInt() ?: -1
+    }
+}

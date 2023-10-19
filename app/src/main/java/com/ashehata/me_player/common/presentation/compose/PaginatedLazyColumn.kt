@@ -28,16 +28,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.base.ComposePagingSource
 import com.ashehata.me_player.base.PagingState
+import com.ashehata.me_player.common.models.PaginatedItem
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun <T> PaginatedLazyColumn(
-    composePagingSource: ComposePagingSource<T>,
+fun PaginatedLazyColumn(
+    composePagingSource: ComposePagingSource<PaginatedItem>,
     lazyListState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(),
     onRefresh: () -> Unit = {},
     isRefreshing: Boolean = false,
-    item: @Composable (T) -> Unit,
+    item: @Composable (PaginatedItem) -> Unit,
     emptyPlaceHolder: @Composable () -> Unit = {
         EmptyListPlaceholder(
             Modifier
@@ -110,7 +111,7 @@ fun <T> PaginatedLazyColumn(
                 modifier = Modifier.animateContentSize()
             ) {
 
-                items(composePagingSource.list) {
+                items(composePagingSource.list, key = { item: PaginatedItem -> item.getId() }) {
                     item(it)
                 }
 

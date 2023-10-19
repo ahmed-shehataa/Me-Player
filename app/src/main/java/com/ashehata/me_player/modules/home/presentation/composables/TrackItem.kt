@@ -17,6 +17,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,6 +69,23 @@ fun TrackItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        val facIconColor = remember(trackUIModel.isFav) {
+            derivedStateOf {
+                if (trackUIModel.isFav) Color.Red else Color.White
+            }
+        }
+
+        val leadingIconColor: State<@Composable () -> Color> = remember(isSelected) {
+            derivedStateOf {
+                {
+                    if (isSelected) MaterialTheme.colors.secondaryVariant else Color.Unspecified
+                }
+            }
+        }
+
+        val duration = remember {
+            trackUIModel.duration.toTimeFormat()
+        }
 
         Box(
             modifier = Modifier
@@ -79,7 +98,7 @@ fun TrackItem(
                 modifier = Modifier.size(26.dp),
                 imageVector = ImageVector.vectorResource(id = iconRes()),
                 contentDescription = null,
-                tint = if (isSelected) MaterialTheme.colors.secondaryVariant else Color.Unspecified
+                tint = leadingIconColor.value()
             )
         }
 
@@ -94,7 +113,7 @@ fun TrackItem(
             )
 
             Text(
-                text = trackUIModel.duration.toTimeFormat(),
+                text = duration,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.typography.body2.copy(
@@ -104,8 +123,9 @@ fun TrackItem(
         }
         IconButton(onClick = { toggleTrackToFavourite(trackUIModel) }) {
             Icon(
-                imageVector = Icons.Outlined.Favorite, contentDescription = null, tint =
-                if (trackUIModel.isFav) Color.Red else Color.White
+                imageVector = Icons.Outlined.Favorite,
+                contentDescription = null,
+                tint = facIconColor.value
             )
 
         }
