@@ -21,16 +21,23 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.base.ComposePagingSource
-import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
+import com.ashehata.me_player.common.models.PaginatedItem
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun <T> PaginatedHorizontalPager(
-    composePagingSource: ComposePagingSource<T>,
-    state: PagerState = rememberPagerState(),
+fun PaginatedHorizontalPager(
+    composePagingSource: ComposePagingSource<PaginatedItem>,
+    state: PagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) {
+        composePagingSource.size()
+    },
+    pageSpacing: Dp = 0.dp,
     contentPadding: PaddingValues = PaddingValues(),
     errorPlaceHolder: @Composable () -> Unit = {
         ErrorPlaceholder(
@@ -52,7 +59,7 @@ fun <T> PaginatedHorizontalPager(
         }
     },
     onCurrentPageChanged: (Int) -> Unit = {},
-    item: @Composable (T) -> Unit,
+    item: @Composable (PaginatedItem) -> Unit,
 ) {
 
     val pagingState = composePagingSource.state.collectAsState().value
@@ -77,23 +84,14 @@ fun <T> PaginatedHorizontalPager(
     }
 
     HorizontalPager(
-        pageCount = pagesCount.value,
+        modifier = Modifier,
         state = state,
-        contentPadding = contentPadding
-    ) {
-        val track = composePagingSource.list[it]
-        item(track)
-    }
-
-    /*Box(Modifier.fillMaxSize()) {
-        if (pagingState == PagingState.LOADING_FIRST_PAGE) {
-            LoadingCompose()
-        } else if (pagingState == PagingState.FAILURE_AT_FIRST) {
-            errorPlaceHolder()
-        } else if (composePagingSource.list.isEmpty() && pagingState == PagingState.REACHED_LAST_PAGE) {
-            emptyPlaceHolder()
-        } else {
+        pageSpacing = pageSpacing,
+        contentPadding = contentPadding,
+        pageContent = {
+            val track = composePagingSource.list[it]
+            item(track)
         }
-    }*/
+    )
 
 }

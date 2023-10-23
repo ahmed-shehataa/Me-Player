@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
@@ -23,7 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ashehata.me_player.base.ComposePagingSource
+import com.ashehata.me_player.common.models.PaginatedItem
 import com.ashehata.me_player.common.presentation.compose.PaginatedHorizontalPager
+import com.ashehata.me_player.common.presentation.compose.currentFraction
 import com.ashehata.me_player.modules.home.presentation.TracksViewModel
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
@@ -43,8 +47,6 @@ fun TracksScreen(viewModel: TracksViewModel) {
 
     val bottomSheetScaffoldState =
         rememberBottomSheetScaffoldState(bottomSheetState = rememberBottomSheetState(initialValue = BottomSheetValue.Collapsed))
-
-    val pagerState = rememberPagerState()
 
     val viewStates = remember { viewModel.viewStates ?: TracksViewState() }
 
@@ -67,6 +69,10 @@ fun TracksScreen(viewModel: TracksViewModel) {
                 TracksScreenMode.MostPlayed -> viewModel.mostPlayedTracksPagingCompose
             }
         }
+    }
+
+    val pagerState = rememberPagerState(initialPage = 0, initialPageOffsetFraction = 0f) {
+        bottomSheetPagingSource.value.size()
     }
 
     val bottomSheetHeight =
@@ -139,6 +145,11 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
+    val bottomSheetShape = remember(bottomSheetScaffoldState.currentFraction) {
+        val radius = (16 * bottomSheetScaffoldState.currentFraction).dp
+        RoundedCornerShape(topStart = radius, topEnd = radius)
+    }
+
     BottomSheetScaffold(
         modifier = Modifier
             .background(MaterialTheme.colors.primary)
@@ -148,8 +159,9 @@ fun TracksScreen(viewModel: TracksViewModel) {
         sheetContent = {
             if (currentSelectedTrack.value != null)
                 PaginatedHorizontalPager(
-                    composePagingSource = bottomSheetPagingSource.value,
+                    composePagingSource = bottomSheetPagingSource.value as ComposePagingSource<PaginatedItem>,
                     state = pagerState,
+                    pageSpacing = 4.dp,
                     onCurrentPageChanged = {
                         onPlayTrackAtPosition(it)
                     }
@@ -160,7 +172,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
                                 bottomSheetScaffoldState.bottomSheetState.expand()
                             }
                         },
-                        track = it,
+                        track = it as TrackUIModel,
                         isSelected = currentSelectedTrack.value == it,
                         onPlayPauseToggle = onPlayPauseToggle,
                         playerState = playerState.value,
@@ -168,13 +180,20 @@ fun TracksScreen(viewModel: TracksViewModel) {
                         onSeekToPosition = onSeekToPosition,
                         toggleTrackToFavourite = toggleTrackToFavourite,
                         onNextClicked = onNextClicked,
-                        onPreviousClicked = onPreviousClicked
+                        onPreviousClicked = onPreviousClicked,
+                        bottomSheetScaffoldState = bottomSheetScaffoldState,
+                        onHideBottomSheet = {
+                            scope.launch {
+                                bottomSheetScaffoldState.bottomSheetState.collapse()
+                            }
+                        }
                     )
                 }
         },
         sheetPeekHeight = bottomSheetHeight.value,
         backgroundColor = MaterialTheme.colors.primary,
         sheetElevation = 4.dp,
+        sheetShape = bottomSheetShape,
     ) {
         TracksScreenContent(
             allTracksPagingData = viewModel.allTracksPagingCompose,
@@ -188,6 +207,5 @@ fun TracksScreen(viewModel: TracksViewModel) {
             bottomPadding = it.calculateBottomPadding()
         )
     }
-
 
 }

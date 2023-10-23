@@ -22,9 +22,21 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        // my.jks information
+        release {
+            storePassword project.property("MyApp.signing.password")
+            storeFile file(project.property("MyApp.signing"))
+            keyAlias project.property("MyApp.signing.alias")
+            keyPassword project.property("MyApp.signing.password")
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled false
+            // Sign the release apk
+            signingConfig signingConfigs.release
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -53,18 +65,18 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'com.google.android.material:material:1.10.0'
 
     //region compose
     def composeBom = platform('androidx.compose:compose-bom:2023.04.01')
     implementation composeBom
-    implementation 'androidx.compose.material:material'
-    implementation 'androidx.activity:activity-compose:1.8.0-rc01'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    implementation 'androidx.compose.material:material:1.6.0-alpha07'
+    implementation 'androidx.activity:activity-compose:1.8.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
@@ -88,7 +100,6 @@ dependencies {
     //endregion
 
     //region media3
-    def media3_version = "1.1.0"
     implementation("androidx.media3:media3-session:$media3_version")
     implementation "androidx.media3:media3-exoplayer:$media3_version"
     //endregion

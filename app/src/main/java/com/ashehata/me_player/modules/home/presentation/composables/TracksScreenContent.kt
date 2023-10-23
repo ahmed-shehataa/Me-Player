@@ -63,7 +63,10 @@ fun TracksScreenContent(
     val allTracksListState = rememberLazyListState()
     val favouriteTracksListState = rememberLazyListState()
     val mostPlayedTracksListState = rememberLazyListState()
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        initialPageOffsetFraction = 0f
+    ) { TracksScreenMode.values().size }
     val isScrollVisible: State<Boolean> = remember(pagerState) {
         derivedStateOf {
             when (pagerState.currentPage) {
@@ -143,42 +146,46 @@ fun TracksScreenContent(
             }
 
 
-            HorizontalPager(pageCount = TracksScreenMode.values().size, state = pagerState) {
-                when (it) {
-                    0 -> {
-                        TracksList(
-                            tracksPagingData = allTracksPagingData,
-                            listState = allTracksListState,
-                            currentSelectedTrack = currentSelectedTrack,
-                            onTrackClicked = onTrackClicked,
-                            toggleTrackToFavourite = toggleTrackToFavourite
-                        )
-                    }
+            TracksScreenMode.values().size
+            HorizontalPager(
+                modifier = Modifier,
+                state = pagerState,
+                pageContent = {
+                    when (it) {
+                        0 -> {
+                            TracksList(
+                                tracksPagingData = allTracksPagingData,
+                                listState = allTracksListState,
+                                currentSelectedTrack = currentSelectedTrack,
+                                onTrackClicked = onTrackClicked,
+                                toggleTrackToFavourite = toggleTrackToFavourite
+                            )
+                        }
 
-                    1 -> {
-                        TracksList(
-                            tracksPagingData = favouriteTracksPagingData,
-                            listState = favouriteTracksListState,
-                            currentSelectedTrack = currentSelectedTrack,
-                            onTrackClicked = onTrackClicked,
-                            toggleTrackToFavourite = toggleTrackToFavourite
+                        1 -> {
+                            TracksList(
+                                tracksPagingData = favouriteTracksPagingData,
+                                listState = favouriteTracksListState,
+                                currentSelectedTrack = currentSelectedTrack,
+                                onTrackClicked = onTrackClicked,
+                                toggleTrackToFavourite = toggleTrackToFavourite
 
-                        )
-                    }
+                            )
+                        }
 
-                    2 -> {
-                        TracksList(
-                            tracksPagingData = mostPlayedTracksPagingData,
-                            listState = mostPlayedTracksListState,
-                            currentSelectedTrack = currentSelectedTrack,
-                            onTrackClicked = onTrackClicked,
-                            toggleTrackToFavourite = toggleTrackToFavourite
+                        2 -> {
+                            TracksList(
+                                tracksPagingData = mostPlayedTracksPagingData,
+                                listState = mostPlayedTracksListState,
+                                currentSelectedTrack = currentSelectedTrack,
+                                onTrackClicked = onTrackClicked,
+                                toggleTrackToFavourite = toggleTrackToFavourite
 
-                        )
+                            )
+                        }
                     }
                 }
-            }
-
+            )
 
         }
 

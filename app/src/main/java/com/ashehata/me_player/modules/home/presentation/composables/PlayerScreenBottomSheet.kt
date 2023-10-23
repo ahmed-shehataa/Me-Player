@@ -2,7 +2,6 @@ package com.ashehata.me_player.modules.home.presentation.composables
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -21,12 +20,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.BottomSheetScaffoldState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -37,11 +39,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.R
+import com.ashehata.me_player.common.presentation.compose.currentFraction
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.player.PlaybackState
@@ -50,6 +54,7 @@ import com.linc.audiowaveform.AudioWaveform
 import com.linc.audiowaveform.model.AmplitudeType
 import com.linc.audiowaveform.model.WaveformAlignment
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlayerScreenBottomSheet(
     onCollapsedItemClicked: () -> Unit,
@@ -58,11 +63,21 @@ fun PlayerScreenBottomSheet(
     onPlayPauseToggle: () -> Unit,
     playerState: PlayerStates,
     playbackState: PlaybackState,
+    bottomSheetScaffoldState: BottomSheetScaffoldState,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
     onSeekToPosition: (Long) -> Unit,
     onNextClicked: () -> Unit,
     onPreviousClicked: () -> Unit,
+    onHideBottomSheet: () -> Unit,
 ) {
+
+    val collapsedItemAlpha = remember(bottomSheetScaffoldState.currentFraction) {
+        1 - bottomSheetScaffoldState.currentFraction
+    }
+
+    val expandedItemAlpha = remember(bottomSheetScaffoldState.currentFraction) {
+        bottomSheetScaffoldState.currentFraction
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -80,8 +95,13 @@ fun PlayerScreenBottomSheet(
             onPreviousClicked,
         )
 
+
         CollapsedItem(
-            Modifier.align(Alignment.TopCenter),
+            Modifier
+                .align(Alignment.TopCenter)
+                .graphicsLayer {
+                    alpha = collapsedItemAlpha
+                },
             onCollapsedItemClicked,
             track,
             onPlayPauseToggle,
@@ -91,6 +111,15 @@ fun PlayerScreenBottomSheet(
             isSelected
         )
 
+        ExpandedItem(
+            Modifier
+                .align(Alignment.TopCenter)
+                .graphicsLayer {
+                    alpha = expandedItemAlpha
+                },
+            onHideBottomSheet,
+            track,
+        )
 
         /*WaveItem(
             Modifier.align(Alignment.BottomCenter),
@@ -102,208 +131,4 @@ fun PlayerScreenBottomSheet(
 
     }
 
-}
-
-@Composable
-fun WaveItem(
-    modifier: Modifier,
-    currentSelectedTrack: TrackDomainModel?,
-    currentProgress: Float,
-    onSeekToPosition: (Long) -> Unit,
-    currentTrackDuration: Long
-) {
-
-    val seekToValue: (Float) -> Long = remember(currentTrackDuration) {
-        {
-
-            (String.format("%.1f", it).toDouble() * currentTrackDuration).toLong()
-        }
-    }
-
-    AudioWaveform(
-        modifier = modifier
-            .padding(start = 20.dp, end = 20.dp)
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        style = Fill,
-        waveformAlignment = WaveformAlignment.Center,
-        amplitudeType = AmplitudeType.Avg,
-        progressBrush = SolidColor(Color.Red),
-        waveformBrush = SolidColor(MaterialTheme.colors.onSurface),
-        spikeWidth = 2.dp,
-        spikePadding = 2.dp,
-        spikeRadius = 2.dp,
-        progress = currentProgress,
-        amplitudes = currentSelectedTrack?.wavesList ?: emptyList(),
-        onProgressChange = {
-            onSeekToPosition(seekToValue(it))
-            Log.i("onSeekToPosition: ", it.toString())
-        },
-        onProgressChangeFinished = {},
-    )
-    Log.i("WaveItem: ", currentSelectedTrack?.wavesList.toString())
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-fun ControllerItem(
-    modifier: Modifier,
-    playerState: PlayerStates,
-    onPlayPauseToggle: () -> Unit,
-    onNextClicked: () -> Unit,
-    onPreviousClicked: () -> Unit,
-) {
-    Box(modifier = modifier
-        .clickable(
-            interactionSource = MutableInteractionSource(),
-            indication = null
-        ) {
-            onPlayPauseToggle()
-        }
-        .background(MaterialTheme.colors.secondary)
-        .fillMaxSize()
-        .padding(horizontal = 20.dp)) {
-
-        AnimatedVisibility(
-            visible = (playerState is PlayerStates.Playing).not(), Modifier.fillMaxSize(),
-            enter = scaleIn(),
-            exit = scaleOut()
-        ) {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(
-                    onClick = { onPreviousClicked() },
-                    Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colors.primary)
-                ) {
-                    Icon(
-                        modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_skip_previous),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onSurface
-                    )
-
-                }
-                IconButton(
-                    onClick = { onPlayPauseToggle() },
-                    Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colors.primary)
-                ) {
-                    Icon(
-                        modifier = Modifier.size(34.dp),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_play_arrow),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onSurface
-                    )
-
-                }
-                IconButton(
-                    onClick = { onNextClicked() },
-                    Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colors.primary)
-                ) {
-                    Icon(
-                        modifier = Modifier.size(30.dp),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_skip_next),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onSurface
-                    )
-
-                }
-            }
-
-        }
-    }
-
-
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun CollapsedItem(
-    modifier: Modifier,
-    onItemClicked: () -> Unit,
-    currentSelectedTrack: TrackUIModel?,
-    onPlayPauseToggle: () -> Unit,
-    playerState: PlayerStates,
-    currentProgress: Float,
-    toggleTrackToFavourite: (TrackUIModel) -> Unit,
-    isSelected: Boolean
-) {
-
-    Column {
-
-        val progressState = remember(isSelected, currentProgress) {
-            derivedStateOf { if (isSelected) currentProgress else 0f }
-        }
-
-        val iconRes = remember(playerState) {
-            derivedStateOf {
-                if (playerState is PlayerStates.Playing) R.drawable.ic_pause else R.drawable.ic_play_arrow
-            }
-        }
-
-        LinearProgressIndicator(
-            progress = progressState.value, color = Color.Red, modifier = Modifier
-                .fillMaxWidth()
-                .height(2.dp),
-            backgroundColor = Color.Unspecified
-        )
-
-        Row(
-            modifier = modifier
-                .clickable {
-                    onItemClicked()
-                }
-                .background(MaterialTheme.colors.secondary)
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-
-            currentSelectedTrack?.let {
-                IconButton(onClick = {
-                    onPlayPauseToggle()
-                }) {
-                    Icon(
-                        modifier = Modifier.size(36.dp),
-                        imageVector = ImageVector.vectorResource(id = iconRes.value),
-                        contentDescription = null
-                    )
-                }
-
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .basicMarquee(),
-                    text = currentSelectedTrack.name,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    style = MaterialTheme.typography.body1.copy(
-                        color = MaterialTheme.colors.onSurface,
-                    )
-                )
-
-                IconButton(onClick = {
-                    toggleTrackToFavourite(currentSelectedTrack)
-                }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Favorite,
-                        contentDescription = null,
-                        tint = if (currentSelectedTrack.isFav) Color.Red else Color.White
-                    )
-
-                }
-            }
-
-        }
-
-    }
 }
