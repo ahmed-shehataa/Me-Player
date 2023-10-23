@@ -103,14 +103,12 @@ fun TracksScreen(viewModel: TracksViewModel) {
 
     val onNextClicked: () -> Unit = remember {
         {
-            viewModel.setEvent(TracksEvent.PlayNextTrack)
             scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
         }
     }
 
     val onPreviousClicked: () -> Unit = remember {
         {
-            viewModel.setEvent(TracksEvent.PlayPreviousTrack)
             scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
         }
     }
@@ -182,6 +180,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
                         onNextClicked = onNextClicked,
                         onPreviousClicked = onPreviousClicked,
                         bottomSheetScaffoldState = bottomSheetScaffoldState,
+                        shape = bottomSheetShape,
                         onHideBottomSheet = {
                             scope.launch {
                                 bottomSheetScaffoldState.bottomSheetState.collapse()
@@ -193,7 +192,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
         sheetPeekHeight = bottomSheetHeight.value,
         backgroundColor = MaterialTheme.colors.primary,
         sheetElevation = 4.dp,
-        sheetShape = bottomSheetShape,
+        //sheetShape = bottomSheetShape,
     ) {
         TracksScreenContent(
             allTracksPagingData = viewModel.allTracksPagingCompose,
@@ -204,7 +203,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
             screenMode = screenMode.value,
             onChangeScreenMode = onChangeScreenMode,
             toggleTrackToFavourite = toggleTrackToFavourite,
-            bottomPadding = it.calculateBottomPadding()
+            bottomPadding = 68.dp
         )
     }
 

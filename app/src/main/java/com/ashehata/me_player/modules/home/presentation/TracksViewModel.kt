@@ -64,16 +64,16 @@ class TracksViewModel @Inject constructor(
             }
 
             is TracksEvent.OnTrackClicked -> {
-               /* Log.i("handleEvents: ", "OnTrackClicked")
+                /* Log.i("handleEvents: ", "OnTrackClicked")
 
-                // change bottomSheetMode to display the correct playing -> paging source data
-                if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
-                    viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
-                }
-                streamer.playTrack(
-                    tracksScreenMode = getCurrentScreenMode(),
-                    trackPositionInList = event.position
-                )*/
+                 // change bottomSheetMode to display the correct playing -> paging source data
+                 if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
+                     viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
+                 }
+                 streamer.playTrack(
+                     tracksScreenMode = getCurrentScreenMode(),
+                     trackPositionInList = event.position
+                 )*/
             }
 
             is TracksEvent.ToggleTrackToFavourite -> {
@@ -103,26 +103,24 @@ class TracksViewModel @Inject constructor(
                 streamer.seekToPosition(event.position)
             }
 
-            TracksEvent.PlayNextTrack -> {
-                streamer.playNext()
-            }
-
-            TracksEvent.PlayPreviousTrack -> {
-                streamer.playPrevious()
-            }
-
             is TracksEvent.PlayTrackAtPosition -> {
                 Log.i("handleEvents: ", "PlayTrackAtPosition")
-                // change bottomSheetMode to display the correct playing -> paging source data
-                if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
-                    viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
+                if (ifPlayerPaused().not()) {
+                    // change bottomSheetMode to display the correct playing -> paging source data
+                    if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
+                        viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
+                    }
+                    streamer.playTrack(
+                        tracksScreenMode = getCurrentScreenMode(),
+                        trackPositionInList = event.position
+                    )
                 }
-                streamer.playTrack(
-                    tracksScreenMode = getCurrentScreenMode(),
-                    trackPositionInList = event.position
-                )
             }
         }
+    }
+
+    private fun ifPlayerPaused(): Boolean {
+        return viewStates?.playerState?.value is PlayerStates.Pause
     }
 
     private fun initStreamer(player: MyPlayer) {
@@ -204,7 +202,8 @@ class TracksViewModel @Inject constructor(
 
     private fun updatePlaybackState(state: PlayerStates) {
         playbackStateJob?.cancel()
-        playbackStateJob = viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, streamer)
+        playbackStateJob =
+            viewModelScope.launchPlaybackStateJob(viewStates?.playbackState, state, streamer)
     }
 
     override fun createInitialViewState(): TracksViewState {

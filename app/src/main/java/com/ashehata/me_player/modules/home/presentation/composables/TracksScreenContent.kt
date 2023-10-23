@@ -1,13 +1,13 @@
 package com.ashehata.me_player.modules.home.presentation.composables
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,7 +46,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TracksScreenContent(
     allTracksPagingData: AllTracksPagingCompose,
@@ -98,7 +98,6 @@ fun TracksScreenContent(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.primary)
-            .padding(bottom = bottomPadding)
     ) {
 
         Column {
@@ -126,12 +125,6 @@ fun TracksScreenContent(
                             onChangeScreenMode(type)
                             scope.launch {
                                 pagerState.animateScrollToPage(index)
-                                scrollToTop(
-                                    screenMode,
-                                    allTracksListState,
-                                    favouriteTracksListState,
-                                    mostPlayedTracksListState
-                                )
                             }
                         },
                         icon = {
@@ -158,7 +151,11 @@ fun TracksScreenContent(
                                 listState = allTracksListState,
                                 currentSelectedTrack = currentSelectedTrack,
                                 onTrackClicked = onTrackClicked,
-                                toggleTrackToFavourite = toggleTrackToFavourite
+                                toggleTrackToFavourite = toggleTrackToFavourite,
+                                contentPadding = PaddingValues(
+                                    top = 20.dp,
+                                    bottom = 20.dp + bottomPadding
+                                )
                             )
                         }
 
@@ -168,8 +165,11 @@ fun TracksScreenContent(
                                 listState = favouriteTracksListState,
                                 currentSelectedTrack = currentSelectedTrack,
                                 onTrackClicked = onTrackClicked,
-                                toggleTrackToFavourite = toggleTrackToFavourite
-
+                                toggleTrackToFavourite = toggleTrackToFavourite,
+                                contentPadding = PaddingValues(
+                                    top = 20.dp,
+                                    bottom = 20.dp + bottomPadding
+                                )
                             )
                         }
 
@@ -179,8 +179,11 @@ fun TracksScreenContent(
                                 listState = mostPlayedTracksListState,
                                 currentSelectedTrack = currentSelectedTrack,
                                 onTrackClicked = onTrackClicked,
-                                toggleTrackToFavourite = toggleTrackToFavourite
-
+                                toggleTrackToFavourite = toggleTrackToFavourite,
+                                contentPadding = PaddingValues(
+                                    top = 20.dp,
+                                    bottom = 20.dp + bottomPadding
+                                )
                             )
                         }
                     }

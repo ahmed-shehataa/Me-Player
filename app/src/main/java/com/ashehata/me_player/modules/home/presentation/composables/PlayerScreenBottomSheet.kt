@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.graphicsLayer
@@ -64,6 +65,7 @@ fun PlayerScreenBottomSheet(
     playerState: PlayerStates,
     playbackState: PlaybackState,
     bottomSheetScaffoldState: BottomSheetScaffoldState,
+    shape: Shape,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
     onSeekToPosition: (Long) -> Unit,
     onNextClicked: () -> Unit,
@@ -79,7 +81,7 @@ fun PlayerScreenBottomSheet(
         bottomSheetScaffoldState.currentFraction
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().clip(shape)) {
 
         val currentProgress = remember(playbackState) {
             if (playbackState.currentTrackDuration != 0L) {
