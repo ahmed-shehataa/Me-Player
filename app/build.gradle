@@ -109,5 +109,9 @@ dependencies {
     implementation 'com.github.lincollincol:amplituda:2.2.2'
     //endregion
 
+    //region permissionx
+    implementation 'com.guolindev.permissionx:permissionx:1.7.1'
+    //endregion
+
 
 }

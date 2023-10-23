@@ -86,6 +86,11 @@ class TracksViewModel @Inject constructor(
                 // TODO UpdateTracks if needed
                 launchCoroutine(Dispatchers.IO) {
                     updateTracksListUseCase.execute(event.tracks)
+                    listOf(
+                        allTracksPagingCompose,
+                        favTracksPagingCompose,
+                        mostPlayedTracksPagingCompose
+                    ).forEach { it.refresh() }
                 }
             }
 
