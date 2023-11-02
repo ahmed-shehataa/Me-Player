@@ -36,7 +36,7 @@ class TracksViewModel @Inject constructor(
 ) : BaseViewModel<TracksEvent, TracksViewState, TracksState>() {
 
     private var playbackStateJob: Job? = null
-    private lateinit var streamer: Streamer<TrackUIModel>
+    lateinit var streamer: Streamer<TrackUIModel>
     /* private var notifyPlayerWithNewList: (List<TrackUIModel>) -> Unit = {
          myPlayer?.appendList(it)
      }*/
@@ -63,19 +63,6 @@ class TracksViewModel @Inject constructor(
 
             }
 
-            is TracksEvent.OnTrackClicked -> {
-                /* Log.i("handleEvents: ", "OnTrackClicked")
-
-                 // change bottomSheetMode to display the correct playing -> paging source data
-                 if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
-                     viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
-                 }
-                 streamer.playTrack(
-                     tracksScreenMode = getCurrentScreenMode(),
-                     trackPositionInList = event.position
-                 )*/
-            }
-
             is TracksEvent.ToggleTrackToFavourite -> {
                 launchCoroutine {
                     toggleToFav(event.trackUIModel)
@@ -96,7 +83,8 @@ class TracksViewModel @Inject constructor(
 
             is TracksEvent.InitPlayer -> {
                 event.player?.let {
-                    initStreamer(event.player)
+                    if (::streamer.isInitialized.not())
+                        initStreamer(event.player)
                 }
             }
 
@@ -110,16 +98,31 @@ class TracksViewModel @Inject constructor(
 
             is TracksEvent.PlayTrackAtPosition -> {
                 Log.i("handleEvents: ", "PlayTrackAtPosition")
-                if (ifPlayerPaused().not()) {
-                    // change bottomSheetMode to display the correct playing -> paging source data
-                    if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
-                        viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
-                    }
-                    streamer.playTrack(
-                        tracksScreenMode = getCurrentScreenMode(),
-                        trackPositionInList = event.position
-                    )
+                viewStates?.currentSelectedTrack?.value = event.track
+                // change bottomSheetMode to display the correct playing -> paging source data
+                if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
+                    viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
                 }
+
+                streamer.playTrack(
+                    tracksScreenMode = getCurrentScreenMode(),
+                    trackPositionInList = event.position,
+                    start = ifPlayerPaused().not()
+                )
+
+            }
+
+            is TracksEvent.ForcePlayTrack -> {
+                Log.i("handleEvents: ", "ForcePlayTrack")
+                // change bottomSheetMode to display the correct playing -> paging source data
+                if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
+                    viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
+                }
+                streamer.playTrack(
+                    tracksScreenMode = getCurrentScreenMode(),
+                    trackPositionInList = event.position,
+                    start = true
+                )
             }
         }
     }

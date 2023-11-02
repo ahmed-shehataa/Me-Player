@@ -86,12 +86,25 @@ fun TracksScreen(viewModel: TracksViewModel) {
     /**
      * Actions
      */
+
+    val onForcePlayTrack: (Int) -> Unit = remember {
+        {
+            viewModel.setEvent(TracksEvent.ForcePlayTrack(it))
+        }
+    }
+
     val onTrackClicked: (TrackUIModel, Int) -> Unit = remember {
         { track, index ->
-            if (currentSelectedTrack.value == null)
-                currentSelectedTrack.value = TrackUIModel()
-            else
+            if (currentSelectedTrack.value == track) {
+                // just open bottom sheet
+                scope.launch {
+                    bottomSheetScaffoldState.bottomSheetState.expand()
+                }
+            } else {
+                // play current track
+                onForcePlayTrack(index)
                 scope.launch { pagerState.scrollToPage(index) }
+            }
         }
     }
 
@@ -113,9 +126,9 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
-    val onPlayTrackAtPosition: (Int) -> Unit = remember {
-        {
-            viewModel.setEvent(TracksEvent.PlayTrackAtPosition(it))
+    val onPlayTrackAtPosition: (Int, TrackUIModel) -> Unit = remember {
+        { index, track ->
+            viewModel.setEvent(TracksEvent.PlayTrackAtPosition(index, track))
         }
     }
 
@@ -160,8 +173,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
                     composePagingSource = bottomSheetPagingSource.value as ComposePagingSource<PaginatedItem>,
                     state = pagerState,
                     pageSpacing = 4.dp,
-                    onCurrentPageChanged = {
-                        onPlayTrackAtPosition(it)
+                    onCurrentPageChanged = { index, track ->
+                        onPlayTrackAtPosition(index, track as TrackUIModel)
                     }
                 ) {
                     PlayerScreenBottomSheet(
@@ -192,7 +205,6 @@ fun TracksScreen(viewModel: TracksViewModel) {
         sheetPeekHeight = bottomSheetHeight.value,
         backgroundColor = MaterialTheme.colors.primary,
         sheetElevation = 4.dp,
-        //sheetShape = bottomSheetShape,
     ) {
         TracksScreenContent(
             allTracksPagingData = viewModel.allTracksPagingCompose,
@@ -203,7 +215,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
             screenMode = screenMode.value,
             onChangeScreenMode = onChangeScreenMode,
             toggleTrackToFavourite = toggleTrackToFavourite,
-            bottomPadding = 68.dp
+            bottomPadding = 68.dp,
+            sheetPadding = it.calculateBottomPadding()
         )
     }
 

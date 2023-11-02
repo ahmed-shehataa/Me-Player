@@ -58,7 +58,7 @@ fun PaginatedHorizontalPager(
             )
         }
     },
-    onCurrentPageChanged: (Int) -> Unit = {},
+    onCurrentPageChanged: (Int, PaginatedItem) -> Unit = {index, item -> },
     item: @Composable (PaginatedItem) -> Unit,
 ) {
 
@@ -79,7 +79,7 @@ fun PaginatedHorizontalPager(
 
     LaunchedEffect(state) {
         snapshotFlow { state.currentPage }.distinctUntilChanged().collect { page ->
-            onCurrentPageChanged(state.currentPage)
+            onCurrentPageChanged(state.currentPage, composePagingSource.list.get(state.currentPage))
         }
     }
 

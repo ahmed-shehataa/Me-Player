@@ -32,7 +32,8 @@ class Streamer<T>(
      */
     fun playTrack(
         tracksScreenMode: TracksScreenMode,
-        trackPositionInList: Int
+        trackPositionInList: Int,
+        start: Boolean
     ) {
         val mediaItems: List<MediaItem> = when (tracksScreenMode) {
             TracksScreenMode.All -> {
@@ -55,7 +56,8 @@ class Streamer<T>(
             //clearMediaItems()
             setMediaItems(mediaItems, trackPositionInList, 0)
             prepare()
-            play()
+            if (start)
+                play()
         }
 
     }

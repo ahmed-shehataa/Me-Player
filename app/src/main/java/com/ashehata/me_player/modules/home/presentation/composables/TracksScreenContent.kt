@@ -57,7 +57,8 @@ fun TracksScreenContent(
     screenMode: TracksScreenMode,
     onChangeScreenMode: (TracksScreenMode) -> Unit,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
-    bottomPadding: Dp
+    bottomPadding: Dp,
+    sheetPadding: Dp
 ) {
     val scope = rememberCoroutineScope()
     val allTracksListState = rememberLazyListState()
@@ -195,7 +196,7 @@ fun TracksScreenContent(
         AnimatedVisibility(
             visible = isScrollVisible.value, modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp),
+                .padding(bottom = 16.dp + sheetPadding),
             enter = scaleIn(),
             exit = scaleOut()
         ) {
