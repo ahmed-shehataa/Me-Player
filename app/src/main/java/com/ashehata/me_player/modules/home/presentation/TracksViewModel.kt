@@ -104,26 +104,31 @@ class TracksViewModel @Inject constructor(
                     viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
                 }
 
-                streamer.playTrack(
-                    tracksScreenMode = getCurrentScreenMode(),
-                    trackPositionInList = event.position,
-                    start = ifPlayerPaused().not()
-                )
+                val startPlaying = if (event.force) true else ifPlayerPaused().not()
 
-            }
-
-            is TracksEvent.ForcePlayTrack -> {
-                Log.i("handleEvents: ", "ForcePlayTrack")
-                // change bottomSheetMode to display the correct playing -> paging source data
-                if (getCurrentScreenMode() != viewStates?.bottomSheetMode?.value) {
-                    viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
+                if (startPlaying) {
+                    increasePlayingCount(event.track)
                 }
                 streamer.playTrack(
                     tracksScreenMode = getCurrentScreenMode(),
                     trackPositionInList = event.position,
-                    start = true
+                    start = startPlaying
                 )
+
             }
+
+            TracksEvent.OpenBottomSheet -> {
+                setState {
+                    TracksState.ExpandBottomSheet
+                }
+            }
+        }
+    }
+
+    private fun increasePlayingCount(track: TrackUIModel) {
+        launchCoroutine {
+            val updatedTrack = track.apply { playingCount += 1 }
+            updateTrackUseCase.execute(updatedTrack.toDomain())
         }
     }
 

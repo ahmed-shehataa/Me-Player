@@ -39,6 +39,7 @@ fun PaginatedLazyColumn(
     onRefresh: () -> Unit = {},
     isRefreshing: Boolean = false,
     item: @Composable (PaginatedItem) -> Unit,
+    header: @Composable () -> Unit = {},
     emptyPlaceHolder: @Composable () -> Unit = {
         EmptyListPlaceholder(
             Modifier
@@ -110,6 +111,10 @@ fun PaginatedLazyColumn(
                 contentPadding = contentPadding,
                 modifier = Modifier.animateContentSize()
             ) {
+
+                item {
+                    header()
+                }
 
                 items(composePagingSource.list, key = { item: PaginatedItem -> item.getId() }) {
                     item(it)

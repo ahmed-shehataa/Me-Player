@@ -28,7 +28,7 @@ class TracksLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun update(trackDataModel: TrackDataModel) {
-        Log.i("update", "update: " + trackDataModel.toString())
+        Log.i("TracksLocalData", "update: " + trackDataModel.toString())
         dao.update(trackDataModel)
     }
 

@@ -26,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.base.ComposePagingSource
 import com.ashehata.me_player.common.models.PaginatedItem
+import com.ashehata.me_player.common.presentation.GeneralObservers
 import com.ashehata.me_player.common.presentation.compose.PaginatedHorizontalPager
 import com.ashehata.me_player.common.presentation.compose.currentFraction
 import com.ashehata.me_player.modules.home.presentation.TracksViewModel
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
+import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
@@ -87,9 +89,9 @@ fun TracksScreen(viewModel: TracksViewModel) {
      * Actions
      */
 
-    val onForcePlayTrack: (Int) -> Unit = remember {
-        {
-            viewModel.setEvent(TracksEvent.ForcePlayTrack(it))
+    val onPlayTrackAtPosition: (Int, TrackUIModel, Boolean) -> Unit = remember {
+        { index, track, force ->
+            viewModel.setEvent(TracksEvent.PlayTrackAtPosition(index, track, force))
         }
     }
 
@@ -102,9 +104,23 @@ fun TracksScreen(viewModel: TracksViewModel) {
                 }
             } else {
                 // play current track
-                onForcePlayTrack(index)
+                Log.i("TracksScreen: track", track.toString())
+                Log.i("TracksScreen: index", index.toString())
+                onPlayTrackAtPosition(index, track, true)
                 scope.launch { pagerState.scrollToPage(index) }
             }
+        }
+    }
+
+    val collapseSheet: () -> Unit = {
+        scope.launch {
+            bottomSheetScaffoldState.bottomSheetState.collapse()
+        }
+    }
+
+    val expandSheet: () -> Unit = {
+        scope.launch {
+            bottomSheetScaffoldState.bottomSheetState.expand()
         }
     }
 
@@ -123,12 +139,6 @@ fun TracksScreen(viewModel: TracksViewModel) {
     val onPreviousClicked: () -> Unit = remember {
         {
             scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
-        }
-    }
-
-    val onPlayTrackAtPosition: (Int, TrackUIModel) -> Unit = remember {
-        { index, track ->
-            viewModel.setEvent(TracksEvent.PlayTrackAtPosition(index, track))
         }
     }
 
@@ -174,14 +184,20 @@ fun TracksScreen(viewModel: TracksViewModel) {
                     state = pagerState,
                     pageSpacing = 4.dp,
                     onCurrentPageChanged = { index, track ->
-                        onPlayTrackAtPosition(index, track as TrackUIModel)
+                        Log.i(
+                            "onCurrentPageChanged",
+                            "TracksScreen: " + currentSelectedTrack.value.toString()
+                        )
+                        onPlayTrackAtPosition(index, track as TrackUIModel, false)
                     }
                 ) {
+                    Log.i(
+                        "PaginatedHorizontal",
+                        "TracksScreen: " + currentSelectedTrack.value.toString()
+                    )
                     PlayerScreenBottomSheet(
                         onCollapsedItemClicked = {
-                            scope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.expand()
-                            }
+                            expandSheet()
                         },
                         track = it as TrackUIModel,
                         isSelected = currentSelectedTrack.value == it,
@@ -195,9 +211,7 @@ fun TracksScreen(viewModel: TracksViewModel) {
                         bottomSheetScaffoldState = bottomSheetScaffoldState,
                         shape = bottomSheetShape,
                         onHideBottomSheet = {
-                            scope.launch {
-                                bottomSheetScaffoldState.bottomSheetState.collapse()
-                            }
+                            collapseSheet()
                         }
                     )
                 }
@@ -218,6 +232,18 @@ fun TracksScreen(viewModel: TracksViewModel) {
             bottomPadding = 68.dp,
             sheetPadding = it.calculateBottomPadding()
         )
+    }
+
+    GeneralObservers<TracksState, TracksViewModel>(viewModel = viewModel) {
+        when (it) {
+            TracksState.ExpandBottomSheet -> {
+                expandSheet()
+            }
+
+            TracksState.RemoveSuccess -> {
+
+            }
+        }
     }
 
 }

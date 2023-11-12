@@ -2,7 +2,9 @@ package com.ashehata.me_player.modules.home.presentation
 
 import android.Manifest
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -23,6 +25,10 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
+
+    companion object {
+        const val OPEN_BS_ACTION = "com.ashehata.me_player.action.BS_ACTION"
+    }
 
     private val tracksViewModel: TracksViewModel by viewModels()
 
@@ -58,6 +64,14 @@ class HomeActivity : AppCompatActivity() {
             },
             MoreExecutors.directExecutor()
         )
+
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent?.action == OPEN_BS_ACTION) {
+            tracksViewModel.setEvent(TracksEvent.OpenBottomSheet)
+        }
 
     }
 

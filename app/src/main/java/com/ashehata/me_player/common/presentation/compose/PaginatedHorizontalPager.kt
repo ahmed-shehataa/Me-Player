@@ -25,9 +25,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.base.ComposePagingSource
 import com.ashehata.me_player.common.models.PaginatedItem
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, FlowPreview::class)
 @Composable
 fun PaginatedHorizontalPager(
     composePagingSource: ComposePagingSource<PaginatedItem>,
@@ -78,7 +80,7 @@ fun PaginatedHorizontalPager(
     }
 
     LaunchedEffect(state) {
-        snapshotFlow { state.currentPage }.distinctUntilChanged().collect { page ->
+        snapshotFlow { state.currentPage }.distinctUntilChanged().debounce(50).collect { page ->
             onCurrentPageChanged(state.currentPage, composePagingSource.list.get(state.currentPage))
         }
     }

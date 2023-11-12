@@ -11,7 +11,7 @@ data class TrackUIModel(
     val size: Int = -1,
     val wavesList: List<Int> = emptyList(),
     val isFav: Boolean = false,
-    val playingCount: Int = -1,
+    var playingCount: Int = -1,
     val mediaItem: MediaItem = MediaItem.Builder().setUri(uri).build()
 ) : PaginatedItem {
     override fun getId(): Int {

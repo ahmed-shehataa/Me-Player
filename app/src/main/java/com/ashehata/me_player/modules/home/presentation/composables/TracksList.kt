@@ -23,13 +23,15 @@ fun TracksList(
     onTrackClicked: (TrackUIModel, Int) -> Unit,
     listState: LazyListState,
     toggleTrackToFavourite: (TrackUIModel) -> Unit,
-    contentPadding : PaddingValues
+    contentPadding: PaddingValues,
+    header: @Composable () -> Unit = {}
 ) {
 
     PaginatedLazyColumn(
         composePagingSource = tracksPagingData as ComposePagingSource<PaginatedItem>,
         lazyListState = listState,
         contentPadding = contentPadding,
+        header = header,
         item = { track ->
             TrackItem(
                 trackUIModel = track as TrackUIModel,

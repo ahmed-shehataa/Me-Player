@@ -20,14 +20,14 @@ sealed class TracksEvent : BaseEvent {
     data class InitPlayer(val player: MyPlayer?) : TracksEvent()
     data class SeekToPosition(val position: Long) : TracksEvent()
     object PlayPauseToggle : TracksEvent()
-    data class PlayTrackAtPosition(val position: Int, val track: TrackUIModel) : TracksEvent()
-    data class ForcePlayTrack(val position: Int) : TracksEvent()
+    object OpenBottomSheet : TracksEvent()
+    data class PlayTrackAtPosition(val position: Int, val track: TrackUIModel, val force: Boolean) : TracksEvent()
     data class ChangeScreenMode(val tracksScreenMode: TracksScreenMode) : TracksEvent()
     object ClearAllFavourite : TracksEvent()
 }
 
 sealed class TracksState : BaseState {
-    object AddSuccess : TracksState()
+    object ExpandBottomSheet : TracksState()
     object RemoveSuccess : TracksState()
 }
 

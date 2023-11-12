@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Tab
@@ -30,12 +32,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.ashehata.me_player.R
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
@@ -156,7 +161,7 @@ fun TracksScreenContent(
                                 contentPadding = PaddingValues(
                                     top = 20.dp,
                                     bottom = 20.dp + bottomPadding
-                                )
+                                ),
                             )
                         }
 
@@ -184,7 +189,20 @@ fun TracksScreenContent(
                                 contentPadding = PaddingValues(
                                     top = 20.dp,
                                     bottom = 20.dp + bottomPadding
-                                )
+                                ),
+                                header = {
+                                    Column {
+                                        Text(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            text = stringResource(id = R.string.most_played_header),
+                                            color = Color.White,
+                                            fontSize = 14.sp,
+                                            textAlign = TextAlign.Center,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Divider(modifier = Modifier.fillMaxWidth(), color = Color.Red)
+                                    }
+                                }
                             )
                         }
                     }

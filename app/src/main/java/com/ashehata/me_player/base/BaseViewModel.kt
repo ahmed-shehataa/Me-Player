@@ -32,13 +32,6 @@ abstract class BaseViewModel<Event : BaseEvent, ViewState : BaseViewState, State
 
     private val defaultExceptionHandler = exceptionHandler {
         handleCustomNetworkError()
-        /*val asyncError = ExceptionHandler.parse(it)
-        _loadingState.postValue(asyncError)
-        if (asyncError is AsyncState.AsyncError.MessageCodeError) {
-            if (asyncError.code is MediaDrm.ErrorCodes.SomethingWentWrongCode || asyncError.code is MediaDrm.ErrorCodes.NoConnectionCode) {
-                handleCustomNetworkError()
-            }
-        }*/
     }
 
     init {
@@ -47,7 +40,7 @@ abstract class BaseViewModel<Event : BaseEvent, ViewState : BaseViewState, State
 
     private fun subscribeEvents() {
         viewModelScope.launch {
-            event.collect {
+            event.collectLatest {
                 handleEvents(it)
             }
         }
