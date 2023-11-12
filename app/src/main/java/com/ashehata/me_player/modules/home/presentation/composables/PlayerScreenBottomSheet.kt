@@ -82,6 +82,7 @@ fun PlayerScreenBottomSheet(
                     alpha = expandedItemAlpha
                 },
             onHideBottomSheet,
+            toggleTrackToFavourite,
             track,
         )
 

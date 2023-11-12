@@ -153,8 +153,11 @@ class TracksViewModel @Inject constructor(
                 viewStates?.playerState?.value = it
                 if (viewStates?.playerState?.value is PlayerStates.Playing) {
                     val index = (it as PlayerStates.Playing).currentTrackIndex
-                    viewStates?.currentSelectedTrack?.value =
-                        getCurrentPlayedTrack(index)
+                    viewStates?.currentSelectedTrack?.value = getCurrentPlayedTrack(index)
+                    setState {
+                        TracksState.ScrollToIndex(index)
+                    }
+                    Log.i("currentSelectedTrack: ", viewStates?.currentSelectedTrack?.value?.name.toString())
                 }
             }
         }

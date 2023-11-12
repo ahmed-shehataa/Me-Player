@@ -64,7 +64,7 @@ fun PaginatedHorizontalPager(
     item: @Composable (PaginatedItem) -> Unit,
 ) {
 
-    val pagingState = composePagingSource.state.collectAsState().value
+    val pagingState = composePagingSource.state.collectAsState()
 
     val pagesCount = remember(composePagingSource.size()) {
         derivedStateOf {

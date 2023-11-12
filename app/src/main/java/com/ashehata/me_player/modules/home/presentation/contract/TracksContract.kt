@@ -28,7 +28,7 @@ sealed class TracksEvent : BaseEvent {
 
 sealed class TracksState : BaseState {
     object ExpandBottomSheet : TracksState()
-    object RemoveSuccess : TracksState()
+    data class ScrollToIndex(val index: Int) : TracksState()
 }
 
 data class TracksViewState(

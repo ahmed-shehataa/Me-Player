@@ -18,6 +18,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -124,6 +125,12 @@ fun TracksScreen(viewModel: TracksViewModel) {
         }
     }
 
+    val scrollToIndex: (Int) -> Unit = {
+        scope.launch {
+            pagerState.animateScrollToPage(it)
+        }
+    }
+
     val toggleTrackToFavourite: (TrackUIModel) -> Unit = remember {
         {
             viewModel.setEvent(TracksEvent.ToggleTrackToFavourite(it))
@@ -159,6 +166,10 @@ fun TracksScreen(viewModel: TracksViewModel) {
             viewModel.setEvent(TracksEvent.ChangeScreenMode(it))
         }
     }
+
+    LaunchedEffect(key1 = currentSelectedTrack, block = {
+        scope.launch { pagerState.scrollToPage(12) }
+    })
 
     BackHandler(enabled = bottomSheetScaffoldState.bottomSheetState.isExpanded) {
         scope.launch {
@@ -240,8 +251,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
                 expandSheet()
             }
 
-            TracksState.RemoveSuccess -> {
-
+            is TracksState.ScrollToIndex -> {
+                scrollToIndex(it.index)
             }
         }
     }

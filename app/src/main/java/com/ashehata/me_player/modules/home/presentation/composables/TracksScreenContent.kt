@@ -193,14 +193,14 @@ fun TracksScreenContent(
                                 header = {
                                     Column {
                                         Text(
-                                            modifier = Modifier.fillMaxWidth(),
+                                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                                             text = stringResource(id = R.string.most_played_header),
                                             color = Color.White,
                                             fontSize = 14.sp,
                                             textAlign = TextAlign.Center,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                        Divider(modifier = Modifier.fillMaxWidth(), color = Color.Red)
+                                        Divider(modifier = Modifier.fillMaxWidth(), color = Color.Gray)
                                     }
                                 }
                             )
