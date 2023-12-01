@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.base.ComposePagingSource
 import com.ashehata.me_player.common.models.PaginatedItem
 import com.ashehata.me_player.common.presentation.GeneralObservers
+import com.ashehata.me_player.common.presentation.compose.LoadingDialog
 import com.ashehata.me_player.common.presentation.compose.PaginatedHorizontalPager
 import com.ashehata.me_player.common.presentation.compose.currentFraction
 import com.ashehata.me_player.modules.home.presentation.TracksViewModel
@@ -60,6 +61,8 @@ fun TracksScreen(viewModel: TracksViewModel) {
     val playerState = remember { viewStates.playerState }
 
     val screenMode = remember { viewStates.screenMode }
+
+    val tracksBufferDialog = remember { viewStates.tracksBuffer }
 
     val bottomSheetMode = remember { viewStates.bottomSheetMode }
 
@@ -182,6 +185,10 @@ fun TracksScreen(viewModel: TracksViewModel) {
         RoundedCornerShape(topStart = radius, topEnd = radius)
     }
 
+    /**
+     * UI
+     */
+
     BottomSheetScaffold(
         modifier = Modifier
             .background(MaterialTheme.colors.primary)
@@ -243,6 +250,9 @@ fun TracksScreen(viewModel: TracksViewModel) {
             bottomPadding = 68.dp,
             sheetPadding = it.calculateBottomPadding()
         )
+
+        if (tracksBufferDialog.value?.isBuffering == true)
+            LoadingDialog(tracksBuffer = tracksBufferDialog.value!!)
     }
 
     GeneralObservers<TracksState, TracksViewModel>(viewModel = viewModel) {

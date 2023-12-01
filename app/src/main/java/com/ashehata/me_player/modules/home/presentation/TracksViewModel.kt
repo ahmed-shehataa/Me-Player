@@ -4,6 +4,10 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.ashehata.me_player.amplitude.MyAmplitude
 import com.ashehata.me_player.base.BaseViewModel
+import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.modules.home.domain.usecase.GetAllTracksListSizeUseCase
+import com.ashehata.me_player.modules.home.domain.usecase.GetAllTracksUseCase
+import com.ashehata.me_player.modules.home.domain.usecase.InsertTrackUseCase
 import com.ashehata.me_player.modules.home.domain.usecase.UpdateTrackUseCase
 import com.ashehata.me_player.modules.home.domain.usecase.UpdateTracksListUseCase
 import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
@@ -11,6 +15,7 @@ import com.ashehata.me_player.modules.home.presentation.contract.TracksState
 import com.ashehata.me_player.modules.home.presentation.contract.TracksViewState
 import com.ashehata.me_player.modules.home.presentation.mapper.toDomain
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
+import com.ashehata.me_player.modules.home.presentation.model.TracksBuffer
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
 import com.ashehata.me_player.modules.home.presentation.pagination.FavTracksPagingCompose
@@ -22,6 +27,7 @@ import com.ashehata.me_player.util.extensions.launchPlaybackStateJob
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
@@ -29,6 +35,9 @@ import javax.inject.Inject
 class TracksViewModel @Inject constructor(
     private val updateTracksListUseCase: UpdateTracksListUseCase,
     private val updateTrackUseCase: UpdateTrackUseCase,
+    private val getAllTracksListSizeUseCase: GetAllTracksListSizeUseCase,
+    private val getAllTracksUseCase: GetAllTracksUseCase,
+    private val insertTrackUseCase: InsertTrackUseCase,
     private val myAmplitude: MyAmplitude,
     val allTracksPagingCompose: AllTracksPagingCompose,
     val favTracksPagingCompose: FavTracksPagingCompose,
@@ -72,12 +81,40 @@ class TracksViewModel @Inject constructor(
             is TracksEvent.UpdateTracks -> {
                 // TODO UpdateTracks if needed
                 launchCoroutine(Dispatchers.IO) {
-                    updateTracksListUseCase.execute(event.tracks)
-                    listOf(
-                        allTracksPagingCompose,
-                        favTracksPagingCompose,
-                        mostPlayedTracksPagingCompose
-                    ).forEach { it.refresh() }
+                    // check track Amplitude
+                    if (getAllTracksListSizeUseCase.execute() != event.tracks.size) {
+                        var counter = 0
+                        val newTracks = getNewTracksToAdd(
+                            deviceTracks = event.tracks,
+                            localTracks = getAllTracksUseCase.execute()
+                        )
+                        viewStates?.tracksBuffer?.value = TracksBuffer(
+                            isBuffering = true,
+                            totalCount = newTracks.size,
+                            buffered = 0
+                        )
+
+                        // insert tracks one by one
+                        newTracks.filter { it.wavesList.isEmpty() }.forEach {
+                            counter++
+                            val wavesList = viewModelScope.async { return@async myAmplitude.audioToWave(it.uri) }.await()
+
+                            viewStates?.tracksBuffer?.value =
+                                viewStates?.tracksBuffer?.value?.copy(buffered = counter)
+                            insertTrackUseCase.execute(it.copy(wavesList = wavesList))
+                        }
+
+                        // Hide dialog after finish inserting tracks
+                        viewStates?.tracksBuffer?.value =
+                            viewStates?.tracksBuffer?.value?.copy(isBuffering = false)
+
+                        // Update UI after inserting all tracks
+                        listOf(
+                            allTracksPagingCompose,
+                            favTracksPagingCompose,
+                            mostPlayedTracksPagingCompose
+                        ).forEach { it.refresh() }
+                    }
                 }
             }
 
@@ -104,8 +141,9 @@ class TracksViewModel @Inject constructor(
                     viewStates?.bottomSheetMode?.value = getCurrentScreenMode()
                 }
 
-                val startPlaying = if (event.force) true else ifPlayerPaused().not()
 
+                // Decide to play track or not depending on current player state
+                val startPlaying = if (event.force) true else ifPlayerPaused().not()
                 if (startPlaying) {
                     increasePlayingCount(event.track)
                 }
@@ -114,7 +152,6 @@ class TracksViewModel @Inject constructor(
                     trackPositionInList = event.position,
                     start = startPlaying
                 )
-
             }
 
             TracksEvent.OpenBottomSheet -> {
@@ -122,6 +159,20 @@ class TracksViewModel @Inject constructor(
                     TracksState.ExpandBottomSheet
                 }
             }
+        }
+    }
+
+    private fun getNewTracksToAdd(
+        deviceTracks: List<TrackDomainModel>,
+        localTracks: List<TrackDomainModel>
+    ): List<TrackDomainModel> {
+        if (localTracks.isEmpty()) return deviceTracks
+        // Create a set of local trackIds for efficient membership tests
+        val localTrackIds = localTracks.map { it.uri }.toSet()
+
+        // Filter deviceTracks to get tracks not present in localTracks
+        return deviceTracks.filterNot { deviceTrack ->
+            deviceTrack.uri in localTrackIds
         }
     }
 
@@ -157,7 +208,10 @@ class TracksViewModel @Inject constructor(
                     setState {
                         TracksState.ScrollToIndex(index)
                     }
-                    Log.i("currentSelectedTrack: ", viewStates?.currentSelectedTrack?.value?.name.toString())
+                    Log.i(
+                        "currentSelectedTrack: ",
+                        viewStates?.currentSelectedTrack?.value?.name.toString()
+                    )
                 }
             }
         }

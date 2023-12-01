@@ -1,5 +1,6 @@
 package com.ashehata.me_player.base
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ashehata.me_player.base.BaseEvent
@@ -31,6 +32,7 @@ abstract class BaseViewModel<Event : BaseEvent, ViewState : BaseViewState, State
     private val event get() = _event.asSharedFlow()
 
     private val defaultExceptionHandler = exceptionHandler {
+        Log.i("defaultExceptionHandler", it.localizedMessage)
         handleCustomNetworkError()
     }
 

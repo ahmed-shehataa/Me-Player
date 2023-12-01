@@ -7,4 +7,6 @@
     <string name="error">Error</string>
     <string name="most_played_header">Played Tracks over 10 times will appear here</string>
     <string name="notification_channel_name">Music</string>
+    <string name="tracks_buffering">Tracks are still buffering</string>
+    <string name="please_wait">Please wait…</string>
 </resources>

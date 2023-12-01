@@ -4,6 +4,9 @@ import com.ashehata.me_player.modules.home.data.model.TrackDataModel
 
 interface TracksLocalDataSource {
 
+
+    suspend fun getAllTracks(): List<TrackDataModel>
+
     suspend fun getAllTracks(
         page: Int,
         perPage: Int,
@@ -24,5 +27,8 @@ interface TracksLocalDataSource {
     suspend fun update(trackDataModel: TrackDataModel)
 
     suspend fun clearAllTracks()
+
+    suspend fun getAllTracksSize(): Int
+    suspend fun insert(trackDataModel: TrackDataModel)
 
 }

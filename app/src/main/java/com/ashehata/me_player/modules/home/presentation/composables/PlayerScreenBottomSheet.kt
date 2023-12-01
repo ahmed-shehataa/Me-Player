@@ -86,13 +86,13 @@ fun PlayerScreenBottomSheet(
             track,
         )
 
-        /*WaveItem(
+        WaveItem(
             Modifier.align(Alignment.BottomCenter),
-            currentSelectedTrack,
+            track,
             currentProgress,
             onSeekToPosition,
             playbackState.currentTrackDuration
-        )*/
+        )
 
     }
 

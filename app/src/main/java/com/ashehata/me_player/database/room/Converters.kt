@@ -6,11 +6,11 @@ object Converters {
 
     @TypeConverter
     fun fromString(intList: String?): List<Int> {
-        return intList?.split(",")?.map { it.toIntOrNull() ?: 0 } ?: emptyList()
+        return if (intList.isNullOrEmpty()) emptyList() else intList.split(",").map { it.toInt() }
     }
 
     @TypeConverter
     fun toString(intList: List<Int>?): String {
-        return intList?.joinToString(separator = ",") ?: ""
+        return if (intList.isNullOrEmpty()) "" else intList.joinToString(separator = ",")
     }
 }

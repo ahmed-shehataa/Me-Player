@@ -7,6 +7,7 @@ import com.ashehata.me_player.base.BaseState
 import com.ashehata.me_player.base.BaseViewState
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
 import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
+import com.ashehata.me_player.modules.home.presentation.model.TracksBuffer
 import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlaybackState
@@ -21,7 +22,9 @@ sealed class TracksEvent : BaseEvent {
     data class SeekToPosition(val position: Long) : TracksEvent()
     object PlayPauseToggle : TracksEvent()
     object OpenBottomSheet : TracksEvent()
-    data class PlayTrackAtPosition(val position: Int, val track: TrackUIModel, val force: Boolean) : TracksEvent()
+    data class PlayTrackAtPosition(val position: Int, val track: TrackUIModel, val force: Boolean) :
+        TracksEvent()
+
     data class ChangeScreenMode(val tracksScreenMode: TracksScreenMode) : TracksEvent()
     object ClearAllFavourite : TracksEvent()
 }
@@ -37,4 +40,5 @@ data class TracksViewState(
     val currentSelectedTrack: MutableState<TrackUIModel?> = mutableStateOf(null),
     val screenMode: MutableState<TracksScreenMode> = mutableStateOf(TracksScreenMode.All),
     val bottomSheetMode: MutableState<TracksScreenMode> = mutableStateOf(screenMode.value),
+    val tracksBuffer: MutableState<TracksBuffer?> = mutableStateOf(null),
 ) : BaseViewState()

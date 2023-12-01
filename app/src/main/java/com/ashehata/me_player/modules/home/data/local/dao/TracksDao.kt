@@ -6,6 +6,12 @@ import com.ashehata.me_player.modules.home.data.model.TrackDataModel
 @Dao
 interface TracksDao {
 
+    @Query("SELECT COUNT(name) FROM Tracks")
+    suspend fun getAllTracksSize(): Int
+
+    @Query("SELECT * FROM Tracks")
+    suspend fun getAllTracks(): List<TrackDataModel>
+
     @Query("SELECT * FROM Tracks LIMIT :perPage OFFSET (:page - 1) * :perPage")
     suspend fun getAllTracks(page: Int, perPage: Int): List<TrackDataModel>
 
@@ -17,6 +23,9 @@ interface TracksDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(tracksList: List<TrackDataModel>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(trackDataModel: TrackDataModel)
 
     @Update
     suspend fun update(trackDataModel: TrackDataModel)

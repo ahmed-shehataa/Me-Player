@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.unit.dp
 import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
 import com.linc.audiowaveform.AudioWaveform
 import com.linc.audiowaveform.model.AmplitudeType
 import com.linc.audiowaveform.model.WaveformAlignment
@@ -20,7 +21,7 @@ import com.linc.audiowaveform.model.WaveformAlignment
 @Composable
 fun WaveItem(
     modifier: Modifier,
-    currentSelectedTrack: TrackDomainModel?,
+    currentSelectedTrack: TrackUIModel?,
     currentProgress: Float,
     onSeekToPosition: (Long) -> Unit,
     currentTrackDuration: Long
@@ -54,5 +55,4 @@ fun WaveItem(
         },
         onProgressChangeFinished = {},
     )
-    Log.i("WaveItem: ", currentSelectedTrack?.wavesList.toString())
 }

@@ -11,6 +11,10 @@ import javax.inject.Inject
 class TracksRepositoryImpl @Inject constructor(private val tracksLocalDataSource: TracksLocalDataSource) :
     TracksRepository {
 
+    override suspend fun getAllTracks(): List<TrackDomainModel> {
+        return tracksLocalDataSource.getAllTracks().map { it.toDomain() }
+    }
+
     override suspend fun getAllTracks(
         page: Int,
         perPage: Int,
@@ -18,6 +22,10 @@ class TracksRepositoryImpl @Inject constructor(private val tracksLocalDataSource
         val ssd = tracksLocalDataSource.getAllTracks(page, perPage).map { it.toDomain() }
         Log.i("getAllTracks", "getAllTracks: " + ssd.size)
         return tracksLocalDataSource.getAllTracks(page, perPage).map { it.toDomain() }
+    }
+
+    override suspend fun getAllTracksSize(): Int {
+       return tracksLocalDataSource.getAllTracksSize()
     }
 
 
@@ -43,5 +51,9 @@ class TracksRepositoryImpl @Inject constructor(private val tracksLocalDataSource
 
     override suspend fun updateTrack(trackDomainModel: TrackDomainModel) {
         tracksLocalDataSource.update(trackDomainModel.toLocalDb())
+    }
+
+    override suspend fun insertTrack(trackDomainModel: TrackDomainModel) {
+        tracksLocalDataSource.insert(trackDomainModel.toLocalDb())
     }
 }

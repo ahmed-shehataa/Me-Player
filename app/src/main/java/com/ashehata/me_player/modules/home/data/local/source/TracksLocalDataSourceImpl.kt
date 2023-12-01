@@ -8,6 +8,11 @@ import javax.inject.Inject
 class TracksLocalDataSourceImpl @Inject constructor(
     private val dao: TracksDao
 ) : TracksLocalDataSource {
+
+    override suspend fun getAllTracks(): List<TrackDataModel> {
+       return dao.getAllTracks()
+    }
+
     override suspend fun getAllTracks(
         page: Int,
         perPage: Int,
@@ -34,6 +39,14 @@ class TracksLocalDataSourceImpl @Inject constructor(
 
     override suspend fun clearAllTracks() {
         dao.clearAll()
+    }
+
+    override suspend fun getAllTracksSize(): Int {
+       return dao.getAllTracksSize()
+    }
+
+    override suspend fun insert(trackDataModel: TrackDataModel) {
+        dao.insert(trackDataModel)
     }
 
 
