@@ -9,4 +9,7 @@
     <string name="notification_channel_name">Music</string>
     <string name="tracks_buffering">Tracks are still buffering</string>
     <string name="please_wait">Please wait…</string>
+    <string name="notification_title">We need notification permission to post notifications for playing music</string>
+    <string name="media_title">We need to access audios to play your music</string>
+    <string name="activate">Activate</string>
 </resources>

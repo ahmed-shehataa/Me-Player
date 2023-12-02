@@ -42,7 +42,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import com.ashehata.me_player.R
-import com.ashehata.me_player.modules.home.presentation.model.TracksBuffer
+import com.ashehata.me_player.features.home.presentation.model.TracksBuffer
 
 @Composable
 fun LoadingDialog(

@@ -1,7 +1,5 @@
 package com.ashehata.me_player.player
 
-import com.ashehata.me_player.modules.home.presentation.model.TrackUIModel
-
 /**
  * An enumeration of the possible states for the player.
  */

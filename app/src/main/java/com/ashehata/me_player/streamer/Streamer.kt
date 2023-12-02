@@ -2,10 +2,10 @@ package com.ashehata.me_player.streamer
 
 import android.util.Log
 import androidx.media3.common.MediaItem
-import com.ashehata.me_player.modules.home.presentation.model.TracksScreenMode
-import com.ashehata.me_player.modules.home.presentation.pagination.AllTracksPagingCompose
-import com.ashehata.me_player.modules.home.presentation.pagination.FavTracksPagingCompose
-import com.ashehata.me_player.modules.home.presentation.pagination.MostPlayedTracksPagingCompose
+import com.ashehata.me_player.features.home.presentation.model.TracksScreenMode
+import com.ashehata.me_player.features.home.presentation.pagination.AllTracksPagingCompose
+import com.ashehata.me_player.features.home.presentation.pagination.FavTracksPagingCompose
+import com.ashehata.me_player.features.home.presentation.pagination.MostPlayedTracksPagingCompose
 import com.ashehata.me_player.player.MyPlayer
 import com.ashehata.me_player.player.PlayerStates
 import kotlinx.coroutines.flow.MutableStateFlow

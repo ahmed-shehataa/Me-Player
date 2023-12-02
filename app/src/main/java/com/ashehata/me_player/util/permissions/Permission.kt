@@ -1,12 +1,12 @@
 package com.ashehata.me_player.util.permissions
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
-import com.ashehata.me_player.external_audios.readAllMediaAudio
-import com.ashehata.me_player.modules.home.presentation.contract.TracksEvent
 import com.permissionx.guolindev.PermissionX
-import kotlinx.coroutines.launch
 
 fun FragmentActivity.requestPermissionsUtil(
     permissions: Array<out String>,
@@ -33,4 +33,12 @@ fun FragmentActivity.requestPermissionsUtil(
                 ).show()
             }
         }
+}
+
+fun Context.isPermissionGranted(permission: String, minSdk: Int = 21): Boolean {
+    if (Build.VERSION.SDK_INT < minSdk) return true
+    return ContextCompat.checkSelfPermission(
+        this,
+        permission
+    ) == PackageManager.PERMISSION_GRANTED
 }

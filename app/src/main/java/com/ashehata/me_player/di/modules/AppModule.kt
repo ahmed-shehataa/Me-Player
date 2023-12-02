@@ -1,4 +1,4 @@
-package com.ashehata.me_player.modules
+package com.ashehata.me_player.features
 
 import android.content.Context
 import androidx.media3.exoplayer.ExoPlayer

@@ -5,7 +5,7 @@ import android.content.ContentUris
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.features.home.domain.model.TrackDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

@@ -16,7 +16,7 @@ import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.session.MediaStyleNotificationHelper
 import com.ashehata.me_player.R
-import com.ashehata.me_player.modules.home.presentation.HomeActivity
+import com.ashehata.me_player.features.home.presentation.HomeActivity
 import com.google.common.collect.ImmutableList
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

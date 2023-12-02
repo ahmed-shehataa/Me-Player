@@ -1,7 +1,7 @@
 package com.ashehata.me_player.player
 
 import androidx.media3.extractor.mp4.Track
-import com.ashehata.me_player.modules.home.domain.model.TrackDomainModel
+import com.ashehata.me_player.features.home.domain.model.TrackDomainModel
 
 
 /**
