@@ -2,7 +2,7 @@
 Me-Player is a sleek local music player designed exclusively for Android devices. With Me-Player, you can seamlessly play your phone's ringtone or groove to your favorite tunes.
 
 ### Screenshots
-Your music library, beautifully organized.
+#### Your music library, beautifully organized.
 <p align="center">
   <img src="img/1.png" height="450" width="220">
   <img src="img/2.png" height="450" width="220">
@@ -10,7 +10,7 @@ Your music library, beautifully organized.
   <img src="img/4.png" height="450" width="220">
 </p>
 
-Transforming your ringtone into a playlist.
+#### Transforming your ringtone into a playlist.
 <p>
   <img src="img/demo.gif" height="500" width="250">
 </p>
@@ -26,17 +26,10 @@ Me-Player is built using cutting-edge technologies:
 - Dagger-Hilt
 - Media3
 
-
-
-#### Your music library, beautifully organized.
-
-
-#### Transforming your ringtone into a playlist.
-
 ### Getting Started
 - Clone the repository.
 - Open the project in Android Studio.
 - Build and run on your Android device.
-*Feel the music with Me-Player!*
 
 
+```Feel the music with Me-Player!```
