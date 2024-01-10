@@ -1,3 +1,5 @@
+#### ```This app is still under development, you may face some bugs while using it```
+
 ### Overview
 Me-Player is a sleek local music player designed exclusively for Android devices. With Me-Player, you can seamlessly play your phone's ringtone or groove to your favorite tunes.
 
