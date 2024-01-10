@@ -10,6 +10,7 @@ Me-Player is a sleek local music player designed exclusively for Android devices
   <img src="img/2.jpg" height="450" width="220">
   <img src="img/3.jpg" height="450" width="220">
   <img src="img/4.jpg" height="450" width="220">
+  <img src="img/5.jpg" height="450" width="220">
 </p>
 
 #### Transforming your ringtone into a playlist.
